@@ -1,0 +1,43 @@
+import 'package:clockify_miniproject/features/auth/data/datasources/login_password_remote_data_source.dart';
+import 'package:clockify_miniproject/features/auth/data/models/error_data.dart';
+import 'package:clockify_miniproject/features/auth/data/models/login_response.dart';
+import 'package:dio/dio.dart';
+
+import '../models/user_data.dart';
+
+abstract class LoginPasswordRemoteRepository{
+  Future<Map<String, dynamic>> fetchUserLogin(String email, String password);
+  Future<Map<String, dynamic>> registerUserData(String email, String password);
+}
+
+class LoginPasswordRemoteRepositoryImpl implements LoginPasswordRemoteRepository{
+  LoginPasswordRemoteDataSource dataSource;
+
+  LoginPasswordRemoteRepositoryImpl(this.dataSource);
+
+  @override
+  Future<Map<String, dynamic>> fetchUserLogin(String email, String password) async {
+    Response response = await dataSource.fetchUserLogin(email, password);
+    print("repository + ${response.data}");
+    if(response.statusCode == 200){
+      print("correct");
+      return LoginSuccess(response.data["status"], response.data["message"], UserData(response.data['user']["uuid"], response.data['user']["email"]), response.data["token"]).toMap();
+    }else if (response.statusCode == 404 || response.statusCode == 401){
+      print("error here");
+      print(response.data);
+      return LoginFail(response.data["status"], ErrorData(response.data['errors']["message"])).toMap();
+    }
+
+    return response.data;
+  }
+
+  @override
+  Future<Map<String, dynamic>> registerUserData(String email, String password)async{
+
+    Response response = await dataSource.registerUserData(email, password);
+    print("response + ${response.data}");
+
+    return response.data;
+  }
+
+}
