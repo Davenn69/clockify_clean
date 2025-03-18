@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/utils/date_formatting.dart';
 import '../../../activity/data/models/activity_hive_model.dart';
 import '../widgets/button_widget.dart';
 
+
 class DetailScreen extends ConsumerWidget{
-  ActivityHive activity;
-  DetailScreen({super.key, required this.activity});
+  final ActivityHive activity;
+  const DetailScreen({super.key, required this.activity});
 
   @override
   Widget build(BuildContext context, WidgetRef ref){
@@ -57,7 +57,7 @@ class DetailScreen extends ConsumerWidget{
                 ),
                 SizedBox(height: 80),
                 Text(
-                  formatDuration(activity.endTime!.difference(activity.startTime)),
+                  formatDuration(activity.endTime.difference(activity.startTime)),
                   style: GoogleFonts.nunitoSans(
                       fontSize: 38,
                       fontWeight: FontWeight.bold,

@@ -1,5 +1,4 @@
 import 'package:clockify_miniproject/features/auth/data/models/user_data.dart';
-import 'package:flutter/material.dart';
 
 import 'error_data.dart';
 

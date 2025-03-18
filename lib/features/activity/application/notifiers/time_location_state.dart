@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class TimeLocationState{
   final DateTime? startTime;
   final DateTime? endTime;

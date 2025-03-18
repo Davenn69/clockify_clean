@@ -5,9 +5,7 @@ class RegisterUserDataUsecase {
 
   RegisterUserDataUsecase(this.repository);
 
-  Future<Map<String, dynamic>> execute(String email, String password)async{
-    print("register works");
-    print(email);
-    return await repository.registerUserData(email, password);
+  Future<Map<String, dynamic>> execute(String email, String password, String confirmPassword)async{
+    return await repository.registerUserData(email, password, confirmPassword);
   }
 }

@@ -1,82 +1,43 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
+import '../../../../core/navigation/navigation_service.dart';
 import '../../../../core/utils/date_formatting.dart';
 import '../../application/providers/activity_repository_provider.dart';
 import '../../application/providers/button_provider.dart';
-import '../../application/notifiers/time_location_notifier.dart';
-import '../../application/providers/stopwatch_time_provider.dart';
-import '../../application/providers/stopwatch_timer_provider.dart';
+import '../../application/providers/timer_providers.dart';
 import '../../domain/entities/activity_entity.dart';
-import '../../application/providers/time_location_provider.dart';
 import '../widgets/button_widget.dart';
-import 'history_screen.dart';
+import '../widgets/timer_widgets.dart';
 
-Route _createRouteForActivity(){
-  return PageRouteBuilder(
-      pageBuilder: (context, animation, secondAnimation)=>ActivityScreen(),
-      transitionDuration: Duration(milliseconds: 400),
-      reverseTransitionDuration: Duration(milliseconds: 400),
-      transitionsBuilder: (context, animation, secondAnimation, child){
-        var tween = Tween(begin: Offset(1.0, 0), end: Offset.zero).chain(CurveTween(curve: Curves.easeInOut));
-        var offsetAnimation = animation.drive(tween);
+class ContentScreen extends ConsumerStatefulWidget{
+  const ContentScreen({super.key});
 
-        return SlideTransition(position: offsetAnimation, child: child);
-      }
-  );
-
+  @override
+  ConsumerState<ContentScreen> createState() => ContentScreenState();
 }
-
-class ContentScreen extends ConsumerWidget{
+class ContentScreenState extends ConsumerState<ContentScreen>{
   final _descriptionController = TextEditingController();
 
-  void startTimer(WidgetRef ref, TimeLocationNotifier notifier){
-    String currentTime = DateTime.now().toString();
-    print(currentTime);
-    final stopWatchTimer = ref.watch(stopWatchTimerProvider.notifier);
-    stopWatchTimer.state = StopWatchTimer(
-      mode: StopWatchMode.countUp,
-    );
-    stopWatchTimer.state.onStartTimer();
-    notifier.startTimer();
-  }
-
-  Future<void> stopTimer(WidgetRef ref, TimeLocationNotifier notifier)async{
-    final stopWatchTimer = ref.watch(stopWatchTimerProvider.notifier);
-    stopWatchTimer.state.onStopTimer();
-    final elapsedMilliseconds = stopWatchTimer.state.rawTime.value;
-
-    final duration = Duration(milliseconds:elapsedMilliseconds);
-    notifier.stopTimer(duration);
-    await notifier.updateGeolocation();
-  }
-
-  void resetTimer(WidgetRef ref, TimeLocationNotifier notifier){
-    final stopWatchTimer = ref.watch(stopWatchTimerProvider.notifier);
-    stopWatchTimer.state.onResetTimer();
-    notifier.resetTimer();
-  }
-
-  Widget build(BuildContext context, WidgetRef ref){
+  @override
+  Widget build(BuildContext context){
     final condition = ref.watch(isStart);
     final stopWatchTime = ref.watch(stopWatchTimeProvider);
-    final stopWatchTimer = ref.watch(stopWatchTimerProvider);
     final state = ref.watch(timeLocationProvider);
     final notifier = ref.read(timeLocationProvider.notifier);
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null && args.containsKey('token')) {
-      Future.microtask(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(tokenProvider.notifier).state = args['token'];
       });
     }
 
     if(state.lat == null && state.lng == null){
-      Future.delayed(Duration.zero, () {
+      WidgetsBinding.instance.addPostFrameCallback((_){
         notifier.updateGeolocation();
       });
     }
@@ -136,7 +97,7 @@ class ContentScreen extends ConsumerWidget{
                       ),
                       GestureDetector(
                         onTap:(){
-                          Navigator.of(context).push(_createRouteForActivity());
+                          Navigator.of(context).push(NavigationService.createRouteForActivity());
                         },
                         child: Hero(
                           tag: 'Activity',
@@ -287,11 +248,11 @@ class ContentScreen extends ConsumerWidget{
                     description: _descriptionController.text,
                     startTime:  state.startTime ?? DateTime.now(),
                     endTime: state.endTime ?? DateTime.now(),
-                    locationLat: 12.0913,
-                    locationLng: 12.9213,
+                    locationLat: state.lat,
+                    locationLng: state.lng,
                     createdAt: DateTime.now(),
-                    updatedAt: DateTime(2024, 3, 2, 6, 50),
-                    userUuid: "user_002",
+                    updatedAt: DateTime.now(),
+                    userUuid: "",
                   ),context),
                   SizedBox(height: 40)
                 ],

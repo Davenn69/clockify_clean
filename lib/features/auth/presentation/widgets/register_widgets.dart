@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -46,9 +47,6 @@ void showModal(BuildContext context){
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  // GestureDetector(
-                  //   child: Text(data),
-                  // )
                 ],
               ),
             ),
@@ -63,6 +61,9 @@ Widget inputTextForEmail(TextEditingController controller, String labelText, Glo
     controller: controller,
     keyboardType: TextInputType.emailAddress,
     validator: validateEmail,
+    inputFormatters: [
+      FilteringTextInputFormatter.deny(RegExp(r'\s')),
+    ],
     decoration: InputDecoration(
       labelText: labelText,
       labelStyle: GoogleFonts.nunitoSans(
@@ -86,6 +87,9 @@ Widget inputTextForPassword(WidgetRef ref, TextEditingController controller, Str
     keyboardType: TextInputType.visiblePassword,
     validator: validatePassword,
     obscureText: !isVisible,
+    inputFormatters: [
+      FilteringTextInputFormatter.deny(RegExp(r'\s')),
+    ],
     decoration: InputDecoration(
         labelText: "Input your password",
         labelStyle: GoogleFonts.nunitoSans(
@@ -115,6 +119,9 @@ Widget inputTextForConfirmPassword(WidgetRef ref, TextEditingController controll
     keyboardType: TextInputType.visiblePassword,
     validator: (value) => validateConfirmPassword(value, controller2.text),
     obscureText: !isVisible,
+    inputFormatters: [
+      FilteringTextInputFormatter.deny(RegExp(r'\s')),
+    ],
     decoration: InputDecoration(
         labelText: "Input your password",
         labelStyle: GoogleFonts.nunitoSans(
@@ -134,5 +141,45 @@ Widget inputTextForConfirmPassword(WidgetRef ref, TextEditingController controll
             child: Icon(isVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined)
         )
     ),
+  );
+}
+
+void showModalForRegisterError(BuildContext context, String data){
+  showDialog(
+      context: context,
+      builder: (BuildContext context){
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: SizedBox(
+            width: 350,
+            height: 300,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Image.asset(
+                    "assets/images/cancel.png",
+                    width: 100,
+                    height: 100,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    data,
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
   );
 }

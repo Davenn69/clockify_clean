@@ -2,26 +2,16 @@ import '../../domain/entities/activity_entity.dart';
 
 class ActivityModel extends ActivityEntity{
   ActivityModel({
-    String? uuid,
-    required String description,
-    required DateTime startTime,
-    required DateTime endTime,
-    required double locationLat,
-    required double locationLng,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-    required String userUuid,
-  }) : super(
-    uuid: uuid,
-    description: description,
-    startTime: startTime,
-    endTime: endTime,
-    locationLat: locationLat,
-    locationLng: locationLng,
-    createdAt: createdAt,
-    updatedAt: updatedAt,
-    userUuid: userUuid,
-  );
+    super.uuid,
+    required super.description,
+    required super.startTime,
+    required super.endTime,
+    required double super.locationLat,
+    required double super.locationLng,
+    required super.createdAt,
+    required super.updatedAt,
+    required super.userUuid,
+  });
 
   factory ActivityModel.fromMap(Map<String, dynamic> map) {
     return ActivityModel(
