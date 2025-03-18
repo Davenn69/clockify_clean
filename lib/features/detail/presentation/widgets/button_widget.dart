@@ -1,13 +1,12 @@
 import 'package:clockify_miniproject/features/activity/application/providers/activity_repository_provider.dart';
-import 'package:clockify_miniproject/features/activity/domain/entities/activity_entity.dart';
+import 'package:clockify_miniproject/features/detail/presentation/widgets/detail_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../../activity/application/providers/history_hive_state_notifier_provider.dart';
-import '../../../activity/application/providers/time_location_provider.dart';
+import '../../../activity/application/providers/history_providers.dart';
+import '../../../activity/application/providers/timer_providers.dart';
 import '../../../activity/data/models/activity_hive_model.dart';
-import '../../../activity/presentation/screen/history_screen.dart';
+
 
 Widget saveDeleteState(WidgetRef ref, TextEditingController controller, ActivityHive activity, BuildContext context){
   final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
@@ -38,9 +37,12 @@ Widget saveDeleteState(WidgetRef ref, TextEditingController controller, Activity
                           shadowColor: Colors.transparent
                       ),
                       onPressed: (){
-                        print(controller.text);
-                        historyNotifier.updateExistingActivity(ActivityHive(uuid : activity.uuid, description: controller.text, startTime: activity.startTime, endTime: activity.endTime, locationLat: activity.locationLat, locationLng: activity.locationLng, createdAt: activity.createdAt, updatedAt: activity.updatedAt, userUuid: activity.userUuid), token, type!, lat!, lng!);
-                        Navigator.pop(context);
+                        WidgetsBinding.instance.addPostFrameCallback((_){
+                          historyNotifier.updateExistingActivity(ActivityHive(uuid : activity.uuid, description: controller.text, startTime: activity.startTime, endTime: activity.endTime, locationLat: activity.locationLat, locationLng: activity.locationLng, createdAt: activity.createdAt, updatedAt: activity.updatedAt, userUuid: activity.userUuid), token, type!, lat!, lng!);
+                          Navigator.pop(context);
+                          showModal(context);
+                        });
+
                       },
                       child: Text(
                         "SAVE",
@@ -66,8 +68,9 @@ Widget saveDeleteState(WidgetRef ref, TextEditingController controller, Activity
                           shadowColor: Colors.transparent
                       ),
                       onPressed: (){
-                        historyNotifier.deleteContent(activity.uuid, token, type!, lat!, lng!);
-                        Navigator.pop(context);
+                        WidgetsBinding.instance.addPostFrameCallback((_){
+                          showModalToConfirm(context, activity, token, type!, lat!, lng!, historyNotifier);
+                        });
                       },
                       child: Text(
                         "DELETE",

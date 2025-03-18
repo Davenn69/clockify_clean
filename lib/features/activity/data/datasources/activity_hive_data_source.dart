@@ -8,7 +8,6 @@ class ActivityHiveDataSource{
   ActivityHiveDataSource(this.activityBox);
 
   Future<void> saveActivity(ActivityHive activity) async {
-    print("Datasource + ${activity.startTime}");
     await activityBox.put(activity.uuid, activity);
   }
 

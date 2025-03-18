@@ -1,27 +1,10 @@
-import 'package:clockify_miniproject/features/activity/application/providers/history_hive_state_notifier_provider.dart';
-import 'package:clockify_miniproject/features/activity/presentation/screen/timer_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../application/notifiers/history_hive_notifier.dart';
-import '../../application/notifiers/history_hive_state.dart';
-
-final selectedChoiceProvider = StateProvider<String?>((ref)=>"Latest Date");
-
-Route _createRouteForContent(){
-  return PageRouteBuilder(
-      pageBuilder: (context, animation, secondAnimation)=>ContentScreen(),
-      transitionDuration: Duration(milliseconds: 400),
-      reverseTransitionDuration: Duration(milliseconds: 400),
-      transitionsBuilder: (context, animation, secondAnimation, child){
-        var tween = Tween(begin: Offset(-1.0, 0), end: Offset.zero).chain(CurveTween(curve: Curves.easeInOut));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(position: offsetAnimation, child: child);
-      }
-  );
-}
+import '../../../../core/navigation/navigation_service.dart';
+import '../../application/providers/history_providers.dart';
+import '../widgets/history_widgets.dart';
 
 class ActivityScreen extends ConsumerWidget{
   final TextEditingController _searchController = TextEditingController();
@@ -30,9 +13,11 @@ class ActivityScreen extends ConsumerWidget{
 
   @override
   Widget build(BuildContext context, WidgetRef ref){
-    final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
-    final historyState = ref.watch(historyHiveStateNotifierProvider);
-    final _selectedChoice = ref.watch(selectedChoiceProvider);
+    // final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
+    // final historyState = ref.watch(historyHiveStateNotifierProvider).history;
+    // final token = ref.watch(tokenProvider);
+    // final lat = ref.watch(timeLocationProvider).lat;
+    // final lng = ref.watch(timeLocationProvider).lng;
 
     return Scaffold(
       backgroundColor: Color(0xFF233971),
@@ -57,7 +42,7 @@ class ActivityScreen extends ConsumerWidget{
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       GestureDetector(
-                        onTap: (){Navigator.of(context).push(_createRouteForContent());},
+                        onTap: (){Navigator.of(context).push(NavigationService.createRouteForContent());},
                         child: Hero(
                           tag: 'Timer',
                           child: Text(
@@ -113,6 +98,10 @@ class ActivityScreen extends ConsumerWidget{
                               controller: _searchController,
                               decoration: InputDecoration(
                                   hintText: "Search Activity...",
+                                  hintStyle: GoogleFonts.nunitoSans(
+                                    fontSize: 14,
+                                    color: Colors.grey
+                                  ),
                                   filled: true,
                                   fillColor: Colors.white,
                                   suffixIcon: Icon(
@@ -130,13 +119,10 @@ class ActivityScreen extends ConsumerWidget{
                           flex: 2,
                           child: DropdownButtonFormField<String>(
                             isExpanded : true,
-                            value: ref.read(selectedChoiceProvider.notifier).state,
+                            value: ref.watch(selectedChoiceProvider),
                             onChanged: (String? value){
                               ref.read(selectedChoiceProvider.notifier).state = value;
-                              if(value == "Latest Date"){
-                                // historyNotifier.sortByDate(ascending: false);
-                                // historyNotifier.getNewData();
-                              }
+                              // ref.refresh(historyHiveStateNotifierProvider);
                             },
                             items: <String>['Latest Date', "Nearby"].map<DropdownMenuItem<String>>((String value){
                               return DropdownMenuItem<String>(
@@ -168,7 +154,10 @@ class ActivityScreen extends ConsumerWidget{
                     ),
                   ),
                   SizedBox(height: 20),
-                  Column(children: historyNotifier.makeWidget(context, ref, _searchController))
+                  Consumer(builder: (context, ref, child){
+                    final historyState = ref.watch(historyHiveStateNotifierProvider).history;
+                    return Column(children: makeWidget(context, ref, _searchController, historyState));
+                  })
                 ],
               ),
             ),

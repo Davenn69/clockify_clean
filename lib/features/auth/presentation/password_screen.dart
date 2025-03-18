@@ -1,19 +1,46 @@
 import 'package:clockify_miniproject/core/utils/password_validation.dart';
+import 'package:clockify_miniproject/features/auth/application/providers/password_view_provider.dart';
+import 'package:clockify_miniproject/features/auth/presentation/widgets/password_widgets.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../application/providers/password_providers.dart';
 
-
-class PasswordScreen extends ConsumerWidget {
-  final TextEditingController _passwordController = TextEditingController();
+class PasswordScreen extends ConsumerStatefulWidget{
   final String email;
-  final _formKey = GlobalKey<FormState>();
 
-  PasswordScreen({super.key, required this.email});
+  const PasswordScreen({super.key, required this.email});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PasswordScreen> createState() => PasswordScreenState();
+}
+
+class PasswordScreenState extends ConsumerState<PasswordScreen>{
+  final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  void _handleLoginPassword()async{
+    final List<ConnectivityResult> result = await Connectivity().checkConnectivity();
+    if(_formKey.currentState!.validate()){
+      if(result.contains(ConnectivityResult.none)){
+        WidgetsBinding.instance.addPostFrameCallback((_){
+          showModalForPasswordError(context, "Unable to connect to the internet");
+        });
+      }else{
+        WidgetsBinding.instance.addPostFrameCallback((_){
+          Navigator.of(context).pushNamed("/loading_content", arguments: {
+            'email' : widget.email,
+            'password' : _passwordController.text
+          });
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final bool isVisible = ref.watch(isVisibleProvider);
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +66,10 @@ class PasswordScreen extends ConsumerWidget {
                     child: TextFormField(
                       validator: validatePassword,
                       controller: _passwordController,
-                      keyboardType: TextInputType.visiblePassword,
+                      keyboardType: TextInputType.text,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                      ],
                       obscureText: !isVisible,
                       decoration: InputDecoration(
                           labelText: "Input your password",
@@ -88,12 +118,7 @@ class PasswordScreen extends ConsumerWidget {
                           shadowColor: Colors.transparent
                       ),
                       onPressed: (){
-                        if(_formKey.currentState!.validate()){
-                          Navigator.of(context).pushNamed("/loading_content", arguments: {
-                            'email' : email,
-                            'password' : _passwordController.text
-                          });
-                        }
+                        _handleLoginPassword();
                       },
                       child: Text(
                         "OK",
@@ -108,7 +133,18 @@ class PasswordScreen extends ConsumerWidget {
                   Padding(
                     padding: EdgeInsets.only(left:82),
                     child: GestureDetector(
-                      onTap: (){},
+                      onTap: ()async{
+                        final response = await ref.read(sendPasswordLinkProvider(widget.email).future);
+                        if(response['status'] == 'fail'){
+                          WidgetsBinding.instance.addPostFrameCallback((_){
+                            showModalForPasswordError(context, response['errors']['message']);
+                          });
+                        }else{
+                          WidgetsBinding.instance.addPostFrameCallback((_){
+                            showModalForForgotPassword(context);
+                          });
+                        }
+                      },
                       child: Text(
                         "Forgot password?",
                         style: GoogleFonts.nunitoSans(

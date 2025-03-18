@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:clockify_miniproject/features/auth/data/datasources/login_password_data_source.dart';
-import 'package:crypto/crypto.dart';
 
 abstract class LoginPasswordRepository{
   Future<void> saveSessionKey(String token);
@@ -19,7 +18,6 @@ class LoginPasswordRepositoryImpl implements LoginPasswordRepository{
     final values = List<int>.generate(32, (i) => random.nextInt(256));
     String sessionKey = base64Url.encode(values);
 
-    print("session Key ${sessionKey}");
     await dataSource.saveSession(sessionKey, token);
   }
 

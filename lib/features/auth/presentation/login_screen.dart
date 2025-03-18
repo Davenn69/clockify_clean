@@ -1,20 +1,64 @@
 import 'package:clockify_miniproject/features/auth/application/providers/password_view_provider.dart';
 import 'package:clockify_miniproject/features/auth/presentation/widgets/login_widgets.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/navigation/navigation_service.dart';
 import '../../../core/utils/email_validation.dart';
 
-class LoginScreen extends ConsumerWidget{
+class LoginScreen extends ConsumerStatefulWidget{
+  const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => LoginScreenState();
+}
+
+class LoginScreenState extends ConsumerState<LoginScreen>{
   final TextEditingController _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  LoginScreen({super.key});
+  void _handleLogin()async{
+    final List<ConnectivityResult> result = await Connectivity().checkConnectivity();
+    if(_formKey.currentState!.validate()){
+      final contextRef = context;
+      ref.read(fetchLoginDataProvider({'email' : _emailController.text, 'password' : " "}).future).then((data){
+        if(data['error'] == "Unknown error occurred"){
+          WidgetsBinding.instance.addPostFrameCallback((_){
+            showModalForError(contextRef, "Unknown error occurred");
+            return;
+          });
+        }else if(result.contains(ConnectivityResult.none)){
+          WidgetsBinding.instance.addPostFrameCallback((_){
+            showModalForError(contextRef, "Unable to connect to the internet");
+          });
+        }else if(data['errors']['message'] == "Account need to be verified!"){
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showModal(contextRef, data['errors']['message']);
+          });
+        }else if(data['errors']['message'] == 'Account Invalid!, please sign up'){
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showModal(contextRef, data['errors']['message']);
+          });
+        }else if(data == null){
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showModalForError(contextRef, data['error']);
+          });
+
+        }else{
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).push(NavigationService.createRouteForPasswordScreen(_emailController.text));
+          });
+        }
+      }
+      );
+    }
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref){
+  Widget build(BuildContext context){
     return Scaffold(
       backgroundColor: Color(0xFF233971),
       body: SafeArea(
@@ -42,6 +86,9 @@ class LoginScreen extends ConsumerWidget{
                       validator: validateEmail,
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                      ],
                       decoration: InputDecoration(
                         floatingLabelBehavior: FloatingLabelBehavior.auto,
                         contentPadding: EdgeInsets.only(left:20, top:10, bottom: 10),
@@ -87,21 +134,7 @@ class LoginScreen extends ConsumerWidget{
                           shadowColor: Colors.transparent
                       ),
                       onPressed: (){
-                        if(_formKey.currentState!.validate()){
-                          final contextRef = context;
-                          ref.read(fetchLoginDataProvider({'email' : _emailController.text, 'password' : " "}).future).then((data){
-                            if(data['errors']['message'] == "Account need to be verified!"){
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                showModal(contextRef, data['errors']['message']);
-                              });
-                            }else if(data['errors']['message'] == 'Account Invalid!, please sign up'){
-                              showModalForError(contextRef, data['errors']['message']);
-                            }else{
-                              Navigator.of(context).push(NavigationService.createRouteForPasswordScreen(_emailController.text));
-                            }
-                          }
-                          );
-                        }
+                        _handleLogin();
                       },
                       child: Text(
                         "SIGN IN",

@@ -6,10 +6,10 @@ class LoginPasswordDataSource{
   LoginPasswordDataSource(this.loginSessionBox);
 
   Future<void> saveSession(String session, String token)async {
-    final expiryTime = DateTime.now().add(Duration(hours: 1)).millisecondsSinceEpoch;
+    final expiryTime = DateTime.now().add(Duration(minutes: 1)).millisecondsSinceEpoch;
     await loginSessionBox.put("sessionData", {
       "sessionKey" : session,
-      // "expiryTime" : expiryTime,
+      "expiryTime" : expiryTime,
       "token" : token,
     });
   }
@@ -23,13 +23,13 @@ class LoginPasswordDataSource{
 
     final typedSessionData = Map<String, dynamic>.from(sessionData);
 
-    // final expiryTime = typedSessionData["expiryTime"] as int;
-    // final now = DateTime.now().millisecondsSinceEpoch;
+    final expiryTime = typedSessionData["expiryTime"] as int;
+    final now = DateTime.now().millisecondsSinceEpoch;
 
-    // if (now > expiryTime) {
-    //   await loginSessionBox.delete("sessionData");
-    //   return null;
-    // }
+    if (now > expiryTime) {
+      await loginSessionBox.delete("sessionData");
+      return null;
+    }
 
     return {
       'sessionKey' : typedSessionData["sessionKey"],

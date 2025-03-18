@@ -21,7 +21,6 @@ class TimeLocationNotifier extends StateNotifier<TimeLocationState>{
 
   Future<void> updateGeolocation() async {
     Position position = await getCurrentLocation();
-    String location = "${position.latitude}, ${position.longitude}";
     state = state.copyWith(resetStart : false, resetEnd : false, lat: position.latitude, lng: position.longitude);
   }
 

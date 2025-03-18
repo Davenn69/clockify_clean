@@ -39,10 +39,12 @@ void showModalLoadingForError(BuildContext context, String data){
         );
       }
   ).then((_){
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    } else {
-      Navigator.pushReplacementNamed(context, "/login");
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else {
+        Navigator.pushReplacementNamed(context, "/login");
+      }
+    });
   });
 }

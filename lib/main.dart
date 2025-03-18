@@ -1,7 +1,6 @@
 import 'package:clockify_miniproject/features/activity/application/providers/delete_activity_provider.dart';
 import 'package:clockify_miniproject/features/activity/application/providers/update_activity_provider.dart';
 import 'package:clockify_miniproject/features/activity/domain/usecases/delete_activity.dart';
-import 'package:clockify_miniproject/features/test/verification_email.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hive_flutter/adapters.dart';

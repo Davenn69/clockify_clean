@@ -1,7 +1,4 @@
 import 'package:clockify_miniproject/features/activity/data/datasources/activity_remote_data_source.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../domain/entities/activity_entity.dart';
 import '../datasources/activity_hive_data_source.dart';
@@ -28,12 +25,10 @@ class ActivityRepositoryImpl implements ActivityRepository{
   @override
   Future<void> saveActivity(ActivityEntity entity, String token) async {
 
-    print("here now");
     // if(await hasInternet()){
       try{
         final response = await remoteDataSource.saveHistory(entity, token);
         final data = response.data['data']['activity'] as ActivityHive;
-        print("Success save + $data");
 
         final activityHive = ActivityHive(
           uuid: data.uuid,
@@ -49,8 +44,7 @@ class ActivityRepositoryImpl implements ActivityRepository{
 
         await dataSource.saveActivity(activityHive);
       }catch(e){
-        print("error");
-        print("Remote dataSource Error $e");
+        throw Exception("Repository error $e");
       }
     // }
 
@@ -59,11 +53,7 @@ class ActivityRepositoryImpl implements ActivityRepository{
   @override
   Future<void> updateActivity(ActivityHive entity, String token) async{
     try{
-      print("This is new + ${entity.description}");
       final response = await remoteDataSource.updateActivity(entity.uuid, entity.description, token);
-      final data = response.data['activity'];
-
-      print(data);
 
       final activityHive = ActivityHive(
         uuid: entity.uuid,
@@ -79,7 +69,7 @@ class ActivityRepositoryImpl implements ActivityRepository{
 
       await dataSource.saveActivity(activityHive);
     }catch(e){
-      print("repository error + $e");
+      throw Exception("Repository error $e");
     }
   }
   @override
@@ -87,55 +77,55 @@ class ActivityRepositoryImpl implements ActivityRepository{
 
     if(type == "Latest Date"){
       try{
-        print("This is internet time");
-        print("Token token here $token");
         // print(await hasInternet());
         // if(await hasInternet()){
         final response = await remoteDataSource.getFilteredByLatestDateHistory(token);
-        print("dadadadasdddadad ${response}");
         final data = response.data['data']['activities'];
-        print(response.data);
         List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
+
+        for(int i=0; i<remoteActivities.length; i++){
+          dataSource.saveActivity(remoteActivities[i]);
+        }
 
         return remoteActivities;
         // }
       }catch(e){
-        print("Remote data source error $e");
+        // throw Exception("Repository error $e");
       }
     }else if(type == "Nearby"){
       try{
-        print("This is internet time");
-        print("Token token here $token");
         // print(await hasInternet());
         // if(await hasInternet()){
         final response = await remoteDataSource.getFilteredByNearbyHistory(token, lat, lng);
-        print("dadadadasdddadad ${response}");
         final data = response.data['data']['activities'];
-        print(response.data);
         List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
+
+        for(int i=0; i<remoteActivities.length; i++){
+          dataSource.saveActivity(remoteActivities[i]);
+        }
 
         return remoteActivities;
         // }
       }catch(e){
-        print("Remote data source error $e");
+        // throw Exception("Repository error $e");
       }
     }
 
     try{
-      print("This is internet time");
-      print("Token token here $token");
       // print(await hasInternet());
       // if(await hasInternet()){
         final response = await remoteDataSource.getHistory(token);
-        print("dadadadasdddadad ${response}");
         final data = response.data['data']['activities'];
-        print(response.data);
         List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
+
+        for(int i=0; i<remoteActivities.length; i++){
+          dataSource.saveActivity(remoteActivities[i]);
+        }
 
         return remoteActivities;
       // }
     }catch(e){
-      print("Remote data source error $e");
+      // throw Exception("Repository error $e");
     }
 
 
@@ -151,6 +141,7 @@ class ActivityRepositoryImpl implements ActivityRepository{
       locationLng: e.locationLng,
       userUuid: e.userUuid
     )).toList();
+
   }
 
   @override

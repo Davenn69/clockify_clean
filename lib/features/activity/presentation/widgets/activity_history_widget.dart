@@ -1,9 +1,5 @@
 import 'package:clockify_miniproject/core/utils/history_formatting.dart';
 import 'package:clockify_miniproject/features/activity/application/providers/activity_repository_provider.dart';
-import 'package:clockify_miniproject/features/activity/application/providers/delete_activity_provider.dart';
-import 'package:clockify_miniproject/features/activity/application/providers/history_hive_state_notifier_provider.dart';
-import 'package:clockify_miniproject/features/activity/application/providers/time_location_provider.dart';
-import 'package:clockify_miniproject/features/activity/presentation/screen/history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -11,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/utils/date_formatting.dart';
 import '../../../detail/presentation/screen/detail_screen.dart';
+import '../../application/providers/history_providers.dart';
+import '../../application/providers/timer_providers.dart';
 import '../../data/models/activity_hive_model.dart';
 
 Route _createRouteForDetail(ActivityHive activity){
@@ -26,8 +24,57 @@ Route _createRouteForDetail(ActivityHive activity){
   );
 }
 
+void showModal(BuildContext context){
+  showDialog(
+      context: context,
+      builder: (BuildContext context){
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: SizedBox(
+            width: 350,
+            height: 400,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Image.asset(
+                        "assets/images/success-medium.png"
+                    ),
+                  ),
+                  SizedBox(height: 50),
+                  Text(
+                    "Success",
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    "Activity has been successfully deleted.",
+                    style: GoogleFonts.nunitoSans(
+                        fontSize: 18,
+                        color: Colors.grey.shade500
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+  );
+}
+
 Widget activityHistoryWidget(ActivityHive activity, BuildContext context, WidgetRef ref){
-  final deleteActivityAsync = ref.watch(deleteActivityProvider);
   final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
   final token = ref.read(tokenProvider.notifier).state;
   final type = ref.watch(selectedChoiceProvider);
@@ -40,7 +87,10 @@ Widget activityHistoryWidget(ActivityHive activity, BuildContext context, Widget
           SlidableAction(
             flex: 1,
             onPressed: (BuildContext context) async {
-              historyNotifier.deleteContent(activity.uuid, token, type!, lat!, lng!);
+              WidgetsBinding.instance.addPostFrameCallback((_){
+                showModal(context);
+                historyNotifier.deleteContent(activity.uuid, token, type!, lat!, lng!);
+              });
             },
             backgroundColor: Colors.redAccent,
             label: 'Delete',

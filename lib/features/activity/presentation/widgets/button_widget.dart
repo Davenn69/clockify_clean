@@ -1,15 +1,12 @@
 import 'package:clockify_miniproject/features/activity/application/providers/activity_repository_provider.dart';
-import 'package:clockify_miniproject/features/activity/application/providers/history_hive_state_notifier_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../application/notifiers/time_location_notifier.dart';
-import '../../application/providers/button_provider.dart';
-import '../../application/providers/time_location_provider.dart';
+import '../../application/providers/history_providers.dart';
+import '../../application/providers/timer_providers.dart';
 import '../../domain/entities/activity_entity.dart';
-import '../screen/history_screen.dart';
 
 Widget StartState(WidgetRef ref, StateProvider<bool> provider, void Function(WidgetRef, TimeLocationNotifier) startTimer, TimeLocationNotifier notifier){
   return Container(
@@ -50,7 +47,6 @@ Widget NotStartState(WidgetRef ref, StateProvider<bool> isResetStop, StateProvid
 }
 
 Widget SaveDeleteState(WidgetRef ref, StateProvider<bool> provider1, StateProvider<bool> provider2, TimeLocationNotifier notifier, void Function(WidgetRef, TimeLocationNotifier) resetTimer, ActivityEntity activity, TextEditingController controller, BuildContext context){
-  final resetStopCondition = ref.watch(isResetStop);
   final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
   final token = ref.read(tokenProvider.notifier).state;
   final type = ref.watch(selectedChoiceProvider);
@@ -82,7 +78,6 @@ Widget SaveDeleteState(WidgetRef ref, StateProvider<bool> provider1, StateProvid
                         if(controller.text.isEmpty){
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Description must be filled")));
                         }else{
-                          print("here");
                           historyNotifier.saveActivity(ActivityEntity(description: controller.text, startTime: activity.startTime, endTime: activity.endTime, locationLat: activity.locationLat, locationLng: activity.locationLng, createdAt: activity.createdAt, updatedAt: activity.updatedAt, userUuid: activity.userUuid), token, type!, lat!, lng!);
 
                           controller.text = "";
@@ -138,7 +133,6 @@ Widget SaveDeleteState(WidgetRef ref, StateProvider<bool> provider1, StateProvid
 }
 
 Widget ResetStopState(WidgetRef ref, StateProvider<bool> isResetStop, StateProvider<bool> isStart, void Function(WidgetRef, TimeLocationNotifier) stopTimer, void Function(WidgetRef, TimeLocationNotifier) resetTimer, TimeLocationNotifier notifier){
-  final resetStopCondition = ref.watch(isResetStop);
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 30.0),
     child: Row(
