@@ -20,7 +20,6 @@ Future<void> stopTimer(WidgetRef ref, TimeLocationNotifier notifier)async{
 
   final duration = Duration(milliseconds:elapsedMilliseconds);
   notifier.stopTimer(duration);
-  await notifier.updateGeolocation();
 }
 
 void resetTimer(WidgetRef ref, TimeLocationNotifier notifier){

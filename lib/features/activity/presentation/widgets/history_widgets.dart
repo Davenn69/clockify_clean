@@ -8,11 +8,13 @@ import '../../data/models/activity_hive_model.dart';
 import 'activity_date_widget.dart';
 import 'activity_history_widget.dart';
 
-List<Widget> makeWidget(BuildContext context, WidgetRef ref, TextEditingController controller, List<ActivityHive> activity) {
+List<Widget> makeWidget(BuildContext context, WidgetRef ref, List<ActivityHive> activity) {
   final historyState = ref.watch(historyHiveStateNotifierProvider);
-  final type = ref.watch(selectedChoiceProvider);
+  final type = ref.watch(selectedChoiceProvider)?? "Latest Date";
+  final query = ref.watch(searchQueryProvider);
+  List<ActivityHive> filteredHistory;
 
-  if (historyState.history.isEmpty) {
+  if (historyState.history == null || historyState.history.isEmpty) {
     return [
       FutureBuilder(
         future: Future.delayed(Duration(milliseconds: 300)),
@@ -31,9 +33,13 @@ List<Widget> makeWidget(BuildContext context, WidgetRef ref, TextEditingControll
     ];
   }
 
-  List<ActivityHive> filteredHistory = historyState.history.where((activity){
-    return activity.description.toLowerCase().contains(controller.text.toLowerCase());
-  }).toList();
+  if(query.length < 3){
+    filteredHistory = historyState.history;
+  }else{
+    filteredHistory = historyState.history.where((activity){
+      return activity.description.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+  }
 
   if(filteredHistory.isEmpty){
     return [

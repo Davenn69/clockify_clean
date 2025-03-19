@@ -88,12 +88,18 @@ class RegisterScreen extends ConsumerWidget{
                                     showModalForRegisterError(context, "Unknown error occurred");
                                     return;
                                   });
-                                }
-                                if(data['status']=='fail'){
-                                  WidgetsBinding.instance.addPostFrameCallback((_){
-                                    Navigator.pop(contextRef);
-                                    showModalForRegisterError(context, "Email already exists");
-                                  });
+                                }else if(data['status']=='fail'){
+                                  if(data['errors']['email'] != null){
+                                    WidgetsBinding.instance.addPostFrameCallback((_){
+                                      Navigator.pop(contextRef);
+                                      showModalForRegisterError(context, "Email already exists");
+                                    });
+                                  }else if(data['errors']['password']!=null){
+                                    WidgetsBinding.instance.addPostFrameCallback((_){
+                                      Navigator.pop(contextRef);
+                                      showModalForRegisterError(context, 'Password has to be strong!');
+                                    });
+                                  }
                                 }else{
                                   WidgetsBinding.instance.addPostFrameCallback((_) {
                                     Navigator.pop(contextRef);

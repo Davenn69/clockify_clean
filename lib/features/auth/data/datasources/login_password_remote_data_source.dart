@@ -10,7 +10,13 @@ class LoginPasswordRemoteDataSource{
   LoginPasswordRemoteDataSource();
 
   Future<Response> fetchUserLogin(String email,  String password) async{
-    Dio dio = Dio();
+    Dio dio = Dio(
+      BaseOptions(
+        connectTimeout: Duration(seconds: 2),
+        receiveTimeout: Duration(seconds: 2),
+        sendTimeout: Duration(seconds: 2),
+      )
+    );
 
     try{
       Response response = await dio.post(
@@ -43,7 +49,13 @@ class LoginPasswordRemoteDataSource{
   }
 
   Future<Response> registerUserData(String email, String password, String confirmPassword) async {
-    Dio dio = Dio();
+    Dio dio = Dio(
+        BaseOptions(
+          connectTimeout: Duration(seconds: 2),
+          receiveTimeout: Duration(seconds: 2),
+          sendTimeout: Duration(seconds: 2),
+        )
+    );
     try{
       Response response = await dio.post(
           "${baseUrl}user/register",

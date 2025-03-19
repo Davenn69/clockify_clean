@@ -3,8 +3,8 @@ class ActivityEntity{
   late String description;
   late DateTime startTime;
   late DateTime endTime;
-  late double? locationLat;
-  late double? locationLng;
+  late double locationLat;
+  late double locationLng;
   late DateTime createdAt;
   late DateTime updatedAt;
   late String userUuid;

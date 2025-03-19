@@ -17,35 +17,37 @@ void showModal(BuildContext context){
             height: 400,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Image.asset(
-                        "assets/images/success-medium.png"
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.asset(
+                          "assets/images/success-medium.png"
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 50),
-                  Text(
-                    "Success",
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    SizedBox(height: 50),
+                    Text(
+                      "Success",
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Activity has been successfully updated.",
-                    style: GoogleFonts.nunitoSans(
-                        fontSize: 18,
-                        color: Colors.grey.shade500
+                    SizedBox(height: 20),
+                    Text(
+                      "Activity has been successfully updated.",
+                      style: GoogleFonts.nunitoSans(
+                          fontSize: 18,
+                          color: Colors.grey.shade500
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -66,84 +68,87 @@ void showModalToConfirm(BuildContext context, ActivityHive activity, String toke
         height: 400,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(height:20),
-              SizedBox(
-                width: 75,
-                height: 75,
-                child: Image.asset(
-                    "assets/images/alert.png"
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(height:20),
+                SizedBox(
+                  width: 75,
+                  height: 75,
+                  child: Image.asset(
+                      "assets/images/alert.png"
+                  ),
                 ),
-              ),
-              SizedBox(height: 50),
-              Text(
-                "You are about to delete a data",
-                style: GoogleFonts.nunitoSans(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                SizedBox(height: 50),
+                Text(
+                  "You are about to delete a data",
+                  style: GoogleFonts.nunitoSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              Text(
-                "Are you sure?",
-                style: GoogleFonts.nunitoSans(
-                    fontSize: 18,
-                    color: Colors.grey.shade500
+                SizedBox(height: 20),
+                Text(
+                  "Are you sure?",
+                  style: GoogleFonts.nunitoSans(
+                      fontSize: 18,
+                      color: Colors.grey.shade500
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade200,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                        "Cancel",
-                      style: GoogleFonts.nunitoSans(
-                        color: Colors.black54
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey.shade200,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                          "Cancel",
+                        style: GoogleFonts.nunitoSans(
+                          color: Colors.black54
+                        ),
                       ),
                     ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                    ),
-                    onPressed: () {
-                      WidgetsBinding.instance.addPostFrameCallback((_){
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                        historyNotifier.deleteContent(activity.uuid, token, type, lat, lng);
-                        showModalForDeleted(context);
-                      });
-                    },
-                    child: Text(
-                        "Delete",
-                      style: GoogleFonts.nunitoSans(
-                        color: Colors.white
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                      ),
+                      onPressed: () {
+                        WidgetsBinding.instance.addPostFrameCallback((_){
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          historyNotifier.deleteContent(activity.uuid, token, type, lat, lng);
+                          showModalForDeleted(context);
+                        });
+                      },
+                      child: Text(
+                          "Delete",
+                        style: GoogleFonts.nunitoSans(
+                          color: Colors.white
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   });
 }
+
 void showModalForDeleted(BuildContext context){
   showDialog(
       context: context,
@@ -157,35 +162,37 @@ void showModalForDeleted(BuildContext context){
             height: 400,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Image.asset(
-                        "assets/images/success-medium.png"
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.asset(
+                          "assets/images/success-medium.png"
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 50),
-                  Text(
-                    "Success",
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    SizedBox(height: 50),
+                    Text(
+                      "Success",
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Activity has been successfully deleted.",
-                    style: GoogleFonts.nunitoSans(
-                        fontSize: 18,
-                        color: Colors.grey.shade500
+                    SizedBox(height: 20),
+                    Text(
+                      "Activity has been successfully deleted.",
+                      style: GoogleFonts.nunitoSans(
+                          fontSize: 18,
+                          color: Colors.grey.shade500
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

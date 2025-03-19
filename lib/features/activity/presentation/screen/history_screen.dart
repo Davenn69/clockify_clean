@@ -1,13 +1,16 @@
+import 'package:clockify_miniproject/features/activity/domain/entities/debouncer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/navigation/navigation_service.dart';
 import '../../application/providers/history_providers.dart';
+import '../../application/providers/timer_providers.dart';
 import '../widgets/history_widgets.dart';
 
 class ActivityScreen extends ConsumerWidget{
   final TextEditingController _searchController = TextEditingController();
+  final Debouncer _debouncer = Debouncer(milliseconds: 300);
 
   ActivityScreen({super.key});
 
@@ -16,8 +19,8 @@ class ActivityScreen extends ConsumerWidget{
     // final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
     // final historyState = ref.watch(historyHiveStateNotifierProvider).history;
     // final token = ref.watch(tokenProvider);
-    // final lat = ref.watch(timeLocationProvider).lat;
-    // final lng = ref.watch(timeLocationProvider).lng;
+    final lat = ref.watch(timeLocationProvider).lat;
+    final lng = ref.watch(timeLocationProvider).lng;
 
     return Scaffold(
       backgroundColor: Color(0xFF233971),
@@ -96,6 +99,11 @@ class ActivityScreen extends ConsumerWidget{
                             flex: 3,
                             child: TextFormField(
                               controller: _searchController,
+                              onChanged: (value){
+                                _debouncer.run((){
+                                  ref.read(searchQueryProvider.notifier).state = value;
+                                });
+                              },
                               decoration: InputDecoration(
                                   hintText: "Search Activity...",
                                   hintStyle: GoogleFonts.nunitoSans(
@@ -119,7 +127,7 @@ class ActivityScreen extends ConsumerWidget{
                           flex: 2,
                           child: DropdownButtonFormField<String>(
                             isExpanded : true,
-                            value: ref.watch(selectedChoiceProvider),
+                            value: ref.watch(selectedChoiceProvider)??"Latest Date",
                             onChanged: (String? value){
                               ref.read(selectedChoiceProvider.notifier).state = value;
                               // ref.refresh(historyHiveStateNotifierProvider);
@@ -154,10 +162,12 @@ class ActivityScreen extends ConsumerWidget{
                     ),
                   ),
                   SizedBox(height: 20),
-                  Consumer(builder: (context, ref, child){
+                  (lat == null || lng == null) ? CircularProgressIndicator() : Consumer(builder: (context, ref, child){
                     final historyState = ref.watch(historyHiveStateNotifierProvider).history;
-                    return Column(children: makeWidget(context, ref, _searchController, historyState));
+                    return Column(children: makeWidget(context, ref, historyState));
                   })
+
+
                 ],
               ),
             ),

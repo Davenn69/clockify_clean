@@ -1,4 +1,5 @@
 import 'package:clockify_miniproject/features/activity/data/datasources/activity_remote_data_source.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../domain/entities/activity_entity.dart';
 import '../datasources/activity_hive_data_source.dart';
@@ -24,27 +25,37 @@ class ActivityRepositoryImpl implements ActivityRepository{
 
   @override
   Future<void> saveActivity(ActivityEntity entity, String token) async {
-
     // if(await hasInternet()){
       try{
         final response = await remoteDataSource.saveHistory(entity, token);
-        final data = response.data['data']['activity'] as ActivityHive;
-
+        final data = response.data['data']['activity'];
         final activityHive = ActivityHive(
-          uuid: data.uuid,
-          description: data.description,
-          startTime: data.startTime,
-          endTime: data.endTime,
-          locationLat: data.locationLat,
-          locationLng: data.locationLng,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          userUuid: data.userUuid,
+          uuid: data['uuid'],
+          description: data['description'],
+          startTime: DateTime.parse(data['start_time']),
+          endTime: DateTime.parse(data['end_time']),
+          locationLat: data['location_lat'],
+          locationLng: data['location_lng'],
+          createdAt: DateTime.parse(data['createdAt']),
+          updatedAt: DateTime.parse(data['updatedAt']),
+          userUuid: data['user_uuid'],
         );
-
         await dataSource.saveActivity(activityHive);
       }catch(e){
-        throw Exception("Repository error $e");
+        String uuid = Uuid().v4();
+        final activityHive = ActivityHive(
+          uuid: uuid,
+          description: entity.description,
+          startTime: entity.startTime,
+          endTime: entity.endTime,
+          locationLat: entity.locationLat,
+          locationLng: entity.locationLng,
+          createdAt: entity.createdAt,
+          updatedAt: entity.updatedAt,
+          userUuid: entity.userUuid,
+        );
+        await dataSource.saveActivity(activityHive);
+        throw Exception("Remote repository error $e");
       }
     // }
 

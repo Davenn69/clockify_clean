@@ -20,3 +20,5 @@ final historyHiveStateNotifierProvider = StateNotifierProvider<HistoryHiveStateN
 
   return HistoryHiveStateNotifier(ref, saveActivities, getActivities, deleteActivity, updateActivity, token, type!, lat!, lng!);
 });
+
+final searchQueryProvider = StateProvider<String>((ref)=> "");
