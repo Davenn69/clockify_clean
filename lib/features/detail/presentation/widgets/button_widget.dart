@@ -7,6 +7,45 @@ import '../../../activity/application/providers/history_providers.dart';
 import '../../../activity/application/providers/timer_providers.dart';
 import '../../../activity/data/models/activity_hive_model.dart';
 
+void showModalForError(BuildContext context, String data){
+  showDialog(
+      context: context,
+      builder: (BuildContext context){
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: SizedBox(
+            width: 350,
+            height: 300,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Image.asset(
+                    "assets/images/cancel.png",
+                    width: 100,
+                    height: 100,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    data,
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+  );
+}
 
 Widget saveDeleteState(WidgetRef ref, TextEditingController controller, ActivityHive activity, BuildContext context){
   final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
@@ -37,12 +76,17 @@ Widget saveDeleteState(WidgetRef ref, TextEditingController controller, Activity
                           shadowColor: Colors.transparent
                       ),
                       onPressed: (){
+                        if(controller.text == ""){
+                          WidgetsBinding.instance.addPostFrameCallback((_){
+                            showModalForError(context, "Please input a description");
+                          });
+                          return;
+                        }
                         WidgetsBinding.instance.addPostFrameCallback((_){
                           historyNotifier.updateExistingActivity(ActivityHive(uuid : activity.uuid, description: controller.text, startTime: activity.startTime, endTime: activity.endTime, locationLat: activity.locationLat, locationLng: activity.locationLng, createdAt: activity.createdAt, updatedAt: activity.updatedAt, userUuid: activity.userUuid), token, type!, lat!, lng!);
                           Navigator.pop(context);
                           showModal(context);
                         });
-
                       },
                       child: Text(
                         "SAVE",

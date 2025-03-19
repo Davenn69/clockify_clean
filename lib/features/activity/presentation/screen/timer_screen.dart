@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -38,7 +39,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
 
     if(state.lat == null && state.lng == null){
       WidgetsBinding.instance.addPostFrameCallback((_){
-        notifier.updateGeolocation();
+        notifier.updateGeolocation(context);
       });
     }
 
@@ -230,6 +231,9 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                             fontSize: 16,
                             color: Colors.black
                         ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(RegExp(r'^\s+')),
+                        ],
                         decoration: InputDecoration(
                           hintText: "Write your activity here...",
                           filled: true,
@@ -248,8 +252,8 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                     description: _descriptionController.text,
                     startTime:  state.startTime ?? DateTime.now(),
                     endTime: state.endTime ?? DateTime.now(),
-                    locationLat: state.lat,
-                    locationLng: state.lng,
+                    locationLat: state.lat ?? 0,
+                    locationLng: state.lng ?? 0,
                     createdAt: DateTime.now(),
                     updatedAt: DateTime.now(),
                     userUuid: "",

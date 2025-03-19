@@ -19,35 +19,37 @@ void showModal(BuildContext context){
             height: 400,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Image.asset(
-                        "assets/images/success-medium.png"
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: Image.asset(
+                          "assets/images/success-medium.png"
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 50),
-                  Text(
-                    "Success",
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    SizedBox(height: 50),
+                    Text(
+                      "Success",
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Your account has been successfully created.",
-                    style: GoogleFonts.nunitoSans(
-                        fontSize: 18,
-                        color: Colors.grey.shade500
+                    SizedBox(height: 20),
+                    Text(
+                      "Your account has been successfully created.",
+                      style: GoogleFonts.nunitoSans(
+                          fontSize: 18,
+                          color: Colors.grey.shade500
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

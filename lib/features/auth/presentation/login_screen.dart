@@ -46,7 +46,6 @@ class LoginScreenState extends ConsumerState<LoginScreen>{
           WidgetsBinding.instance.addPostFrameCallback((_) {
             showModalForError(contextRef, data['error']);
           });
-
         }else{
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).push(NavigationService.createRouteForPasswordScreen(_emailController.text));

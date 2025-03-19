@@ -17,6 +17,7 @@ class LoadingContentScreenState extends ConsumerState<LoadingContentScreen> with
 
   String? email;
   String? password;
+  bool listenerAdded = false;
 
   void contentReady(){
     _controller = AnimationController(
@@ -48,34 +49,41 @@ class LoadingContentScreenState extends ConsumerState<LoadingContentScreen> with
 
     email = args['email'];
     password = args['password'];
+
   }
 
   @override
   Widget build(BuildContext context){
     final saveSessionNotifier = ref.read(saveSessionKeyProvider.notifier);
 
-    ref.listen(fetchLoginDataProvider({'email' : email!, 'password' : password!}), (previous, next){
-      next.when(
-        data : (data){
-          if(data['status']=='fail'){
-            WidgetsBinding.instance.addPostFrameCallback((_){
-              showModalLoadingForError(context, data['errors']['message']);
+    if(!listenerAdded){
+      listenerAdded = true;
+      ref.listen(fetchLoginDataProvider({'email' : email!, 'password' : password!}), (previous, next){
+        next.when(
+          data : (data){
+            if(data['error']=="Unknown error occurred"){
+              WidgetsBinding.instance.addPostFrameCallback((_){
+                showModalLoadingForError(context, data['error']);
+              });
+            }else if(data['status']=='fail'){
+              WidgetsBinding.instance.addPostFrameCallback((_){
+                showModalLoadingForError(context, data['errors']['message']);
+              });
+            }else{
+              saveSessionNotifier.saveSession(data['token']);
+              Navigator.pushReplacementNamed(context, "/content", arguments: {
+                'token' : data['token']
+              });
+            }
 
-            });
-          }else{
-            saveSessionNotifier.saveSession(data['token']);
-            Navigator.pushReplacementNamed(context, "/content", arguments: {
-              'token' : data['token']
-            });
-          }
-
-        },
-        error: (error, stackTrace){
-          Navigator.pushReplacementNamed(context, '/password');
-        },
-        loading: (){},
-      );
-    });
+          },
+          error: (error, stackTrace){
+            Navigator.pushReplacementNamed(context, '/password');
+          },
+          loading: (){},
+        );
+      });
+    }
 
     return Scaffold(
         body: Center(

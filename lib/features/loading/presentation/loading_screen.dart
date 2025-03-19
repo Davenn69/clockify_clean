@@ -18,13 +18,19 @@ class LoadingScreenState extends ConsumerState<LoadingScreen>{
   @override
   void initState(){
     super.initState();
-    Future.delayed(Duration(milliseconds: 500), (){
+    Future.delayed(Duration(milliseconds: 200), (){
       setState((){
         opacity = 0;
       });
     });
 
-    Future.microtask(()=>ref.read(loadingNotifierProvider.notifier).checkSession());
+    Future.delayed(Duration(milliseconds: 1600), () {
+      if (mounted) {
+        ref.read(loadingNotifierProvider.notifier).checkSession();
+      }
+    });
+
+    // Future.microtask(()=>ref.read(loadingNotifierProvider.notifier).checkSession());
   }
 
   @override
