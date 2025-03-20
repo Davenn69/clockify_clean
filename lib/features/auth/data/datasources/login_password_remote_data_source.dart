@@ -5,7 +5,8 @@ class LoginPasswordRemoteDataSource{
   // final baseUrl = "http://192.168.1.8:3000/api/v1/";
   // final baseUrl = "http://192.168.126.1:3000/api/v1/";
   // final baseUrl = "http://192.168.86.26:3000/api/v1/";
-  final baseUrl = "http://192.168.1.8:3000/api/v1/";
+  // final baseUrl = "http://192.168.1.8:3000/api/v1/";
+  final baseUrl = "https://f20d-103-19-109-29.ngrok-free.app/api/v1/";
   // final baseUrl = "https://192.168.43.1:3000/api/v1/";
   LoginPasswordRemoteDataSource();
 
@@ -91,7 +92,7 @@ class LoginPasswordRemoteDataSource{
     }
   }
 
-  Future<Response> sendForgotPasswordLink(String email)async{
+  Future<Response?> sendForgotPasswordLink(String email)async{
     Dio dio = Dio();
 
     try{
@@ -109,8 +110,11 @@ class LoginPasswordRemoteDataSource{
         throw Exception("Register failed: ${response.statusMessage}");
       }
     }on DioException catch(dioError){
+      print(dioError.message);
+      print(dioError.response);
 
-      throw Exception("DioError: ${dioError.message}");
+      return dioError.response;
+      // throw Exception("DioError: ${dioError.message}");
     }catch(e){
       throw Exception("Error $e");
     }

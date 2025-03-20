@@ -1,5 +1,8 @@
+import 'package:clockify_miniproject/features/detail/application/providers/detail_providers.dart';
+import 'package:clockify_miniproject/features/detail/presentation/widgets/detail_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -7,15 +10,107 @@ import '../../../../core/utils/date_formatting.dart';
 import '../../../activity/data/models/activity_hive_model.dart';
 import '../widgets/button_widget.dart';
 
-
-class DetailScreen extends ConsumerWidget{
+class DetailScreen extends ConsumerStatefulWidget{
   final ActivityHive activity;
   const DetailScreen({super.key, required this.activity});
+  @override
+  ConsumerState<DetailScreen> createState() => DetailScreenState();
+}
+class DetailScreenState extends ConsumerState<DetailScreen>{
+  late DateTime changedTime;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref){
+  void initState() {
+    super.initState();
+
+    Future.microtask((){
+      ref.read(changedStartTimeProvider.notifier).state = widget.activity.startTime;
+      ref.read(changedEndTimeProvider.notifier).state = widget.activity.endTime;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context){
+    var changedStartTime = ref.watch(changedStartTimeProvider);
+    var changedEndTime = ref.watch(changedEndTimeProvider);
     final TextEditingController descriptionController = TextEditingController();
-    descriptionController.text = activity.description;
+    descriptionController.text = widget.activity.description;
+
+    Future<void> selectDateStartTime(BuildContext context, DateTime startTime, DateTime endTime) async {
+      if(startTime == null || endTime == null){
+        return;
+      }
+
+      DatePicker.showDatePicker(
+          context,
+          locale: LocaleType.en,
+          onConfirm: (date) {
+            DatePicker.showTimePicker(
+              context,
+              showSecondsColumn: true,
+              currentTime: DateTime.now(),
+              locale: LocaleType.en,
+              onConfirm: (time) {
+                DateTime selectedDateTime = DateTime(
+                  date.year,
+                  date.month,
+                  date.day,
+                  time.hour,
+                  time.minute,
+                  time.second,
+                );
+
+                if(selectedDateTime.isAfter(endTime)){
+                  WidgetsBinding.instance.addPostFrameCallback((_){
+                    showModalForDetailError(context, "Start time should not be greater than end time");
+                  });
+                  return;
+                }
+
+                ref.read(changedStartTimeProvider.notifier).state = selectedDateTime;
+                print("Selected Date & Time: $selectedDateTime");
+              },
+            );
+          });
+    }
+
+    Future<void> selectDateEndTime(BuildContext context, DateTime startTime, DateTime endTime) async {
+      if(startTime == null || endTime == null){
+        return;
+      }
+
+      DatePicker.showDatePicker(
+          context,
+          locale: LocaleType.en,
+          onConfirm: (date) {
+            DatePicker.showTimePicker(
+              context,
+              showSecondsColumn: true,
+              currentTime: DateTime.now(),
+              locale: LocaleType.en,
+              onConfirm: (time) {
+                DateTime selectedDateTime = DateTime(
+                  date.year,
+                  date.month,
+                  date.day,
+                  time.hour,
+                  time.minute,
+                  time.second,
+                );
+
+                if(selectedDateTime.isBefore(startTime)){
+                  WidgetsBinding.instance.addPostFrameCallback((_){
+                    showModalForDetailError(context, "End time should not be greater than start time");
+                  });
+                  return;
+                }
+
+                ref.read(changedEndTimeProvider.notifier).state = selectedDateTime;
+                print("Selected Date & Time: $selectedDateTime");
+              },
+            );
+          });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -41,24 +136,19 @@ class DetailScreen extends ConsumerWidget{
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap:(){
-                        Navigator.pushReplacementNamed(context, "/activity");
-                      },
-                      child: Text(
-                        formatDate(activity.createdAt),
-                        style: GoogleFonts.nunitoSans(
-                            color: Color(0xFFF8D068),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18
-                        ),
+                    Text(
+                      formatDate(DateTime.now()),
+                      style: GoogleFonts.nunitoSans(
+                          color: Color(0xFFF8D068),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 80),
                 Text(
-                  formatDuration(activity.endTime.difference(activity.startTime)),
+                  formatDuration(changedEndTime.difference(changedStartTime)),
                   style: GoogleFonts.nunitoSans(
                       fontSize: 38,
                       fontWeight: FontWeight.bold,
@@ -69,63 +159,73 @@ class DetailScreen extends ConsumerWidget{
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    Column(
-                      children: <Widget>[
-                        Text(
-                          "Start Time",
-                          style: GoogleFonts.nunitoSans(
-                              fontSize: 12,
-                              color: Colors.white
+                    GestureDetector(
+                      onTap: ()async{
+                        await selectDateStartTime(context, changedStartTime, changedEndTime);
+                      },
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            "Start Time",
+                            style: GoogleFonts.nunitoSans(
+                                fontSize: 12,
+                                color: Colors.white
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          formatTime(activity.startTime),
-                          style: GoogleFonts.nunitoSans(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white
+                          SizedBox(height: 5),
+                          Text(
+                            formatTime(changedStartTime),
+                            style: GoogleFonts.nunitoSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          formatDate(activity.startTime),
-                          style: GoogleFonts.nunitoSans(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color: Colors.white
+                          SizedBox(height: 5),
+                          Text(
+                            formatDate(changedStartTime),
+                            style: GoogleFonts.nunitoSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Colors.white
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    Column(
-                      children: <Widget>[
-                        Text(
-                          "End Time",
-                          style: GoogleFonts.nunitoSans(
-                              fontSize: 12,
-                              color: Colors.white
+                    GestureDetector(
+                      onTap: ()async{
+                        await selectDateEndTime(context, changedStartTime, changedEndTime);
+                      },
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            "End Time",
+                            style: GoogleFonts.nunitoSans(
+                                fontSize: 12,
+                                color: Colors.white
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          formatTime(activity.endTime),
-                          style: GoogleFonts.nunitoSans(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white
+                          SizedBox(height: 5),
+                          Text(
+                            formatTime(changedEndTime),
+                            style: GoogleFonts.nunitoSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          formatDate(activity.endTime),
-                          style: GoogleFonts.nunitoSans(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color: Colors.white
+                          SizedBox(height: 5),
+                          Text(
+                            formatDate(changedEndTime),
+                            style: GoogleFonts.nunitoSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Colors.white
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     )
                   ],
                 ),
@@ -147,7 +247,7 @@ class DetailScreen extends ConsumerWidget{
                           color: Color(0xFFF8D068),
                         ),
                         Text(
-                          "${activity.locationLat} ${activity.locationLng}",
+                          "${widget.activity.locationLat} ${widget.activity.locationLng}",
                           style: GoogleFonts.nunitoSans(
                               color: Colors.white,
                               fontSize: 16
@@ -184,7 +284,7 @@ class DetailScreen extends ConsumerWidget{
                   ),
                 ),
                 SizedBox(height: 20),
-                saveDeleteState(ref, descriptionController, activity, context),
+                saveDeleteState(ref, descriptionController, widget.activity, context),
                 SizedBox(height: 40)
               ],
             ),

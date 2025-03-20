@@ -38,8 +38,8 @@ class LoginPasswordRemoteRepositoryImpl implements LoginPasswordRemoteRepository
 
   @override
   Future<Map<String, dynamic>> sendForgotPasswordLink(String email)async{
-    Response response = await dataSource.sendForgotPasswordLink(email);
+    Response? response = await dataSource.sendForgotPasswordLink(email);
 
-    return response.data;
+    return response != null ? response?.data : {"error" : "Unknown error occurred"};
   }
 }

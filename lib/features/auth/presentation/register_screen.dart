@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/utils/responsive_functions.dart';
 import '../application/providers/register_providers.dart';
 
 
@@ -13,43 +14,50 @@ class RegisterScreen extends ConsumerWidget{
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
   RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref){
-    final formKey = GlobalKey<FormState>();
     return Scaffold(
-      appBar: AppBar(),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        toolbarHeight: 30,
+      ),
       body: SafeArea(
           child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(height: 30),
-                    Text(
-                      "Create New Account",
-                      style: GoogleFonts.nunitoSans(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      settingSizeForScreenSpaces(context, 0.04, 0),
+                      SizedBox(
+                        width: settingSizeForScreen(context, 270, 150),
+                        child: FittedBox(
+                          child: Text(
+                            "Create New Account",
+                            style: GoogleFonts.nunitoSans(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 40),
-                    inputTextForEmail(_emailController, "Input your email", formKey),
-                    SizedBox(height: 40),
-                    inputTextForPassword(ref, _passwordController, "Create your password", isPasswordVisible, formKey),
-                    SizedBox(height: 40),
-                    inputTextForConfirmPassword(ref, _confirmPasswordController, "Confirm your password", isConfirmPasswordVisible, _passwordController),
-                    SizedBox(height: 50),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 225),
-                      child: Container(
-                        width: 400,
-                        height: 60,
+                      settingSizeForScreenSpaces(context, 0.03, 0.01),
+                      inputTextForEmail(context, _emailController, "Input your email", formKey),
+                      settingSizeForScreenSpaces(context, 0.04, 0.03),
+                      inputTextForPassword(context, ref, _passwordController, "Create your password", isPasswordVisible, formKey),
+                      settingSizeForScreenSpaces(context, 0.04, 0.03),
+                      inputTextForConfirmPassword(context, ref, _confirmPasswordController, "Confirm your password", isConfirmPasswordVisible, _passwordController),
+                      settingSizeForScreenSpaces(context, 0.35, 0.05),
+                      Container(
+                        width: settingSizeForScreen(context, 400, 100),
+                        height: settingSizeForScreen(context, 60, 40),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: [BoxShadow(
@@ -134,15 +142,15 @@ class RegisterScreen extends ConsumerWidget{
                           child: Text(
                             "OK",
                             style: GoogleFonts.nunitoSans(
-                                fontSize: 20,
+                                fontSize: settingSizeForText(context, 20, 16),
                                 color: Colors.white
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 20),
-                  ],
+                      SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),

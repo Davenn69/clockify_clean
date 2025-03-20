@@ -6,7 +6,7 @@ import '../notifiers/history_hive_notifier.dart';
 import '../notifiers/history_hive_state.dart';
 import 'activity_repository_provider.dart';
 
-final selectedChoiceProvider = StateProvider<String?>((ref)=>"Latest Date");
+final selectedChoiceProvider = StateProvider<String?>((ref)=>"Oldest");
 
 final historyHiveStateNotifierProvider = StateNotifierProvider<HistoryHiveStateNotifier, HistoryHiveState>((ref){
   final getActivities = ref.watch(getActivitiesSyncProvider);
