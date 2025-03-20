@@ -64,7 +64,7 @@ class ActivityRepositoryImpl implements ActivityRepository{
   @override
   Future<void> updateActivity(ActivityHive entity, String token) async{
     try{
-      final response = await remoteDataSource.updateActivity(entity.uuid, entity.description, token);
+      final response = await remoteDataSource.updateActivity(entity.uuid, entity.description, token, entity.startTime, entity.endTime, entity.locationLat, entity.locationLng);
 
       final activityHive = ActivityHive(
         uuid: entity.uuid,
@@ -108,6 +108,23 @@ class ActivityRepositoryImpl implements ActivityRepository{
         // print(await hasInternet());
         // if(await hasInternet()){
         final response = await remoteDataSource.getFilteredByNearbyHistory(token, lat, lng);
+        final data = response.data['data']['activities'];
+        List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
+
+        for(int i=0; i<remoteActivities.length; i++){
+          dataSource.saveActivity(remoteActivities[i]);
+        }
+
+        return remoteActivities;
+        // }
+      }catch(e){
+        // throw Exception("Repository error $e");
+      }
+    }else if(type=="Oldest"){
+      try{
+        // print(await hasInternet());
+        // if(await hasInternet()){
+        final response = await remoteDataSource.getHistory(token);
         final data = response.data['data']['activities'];
         List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
 

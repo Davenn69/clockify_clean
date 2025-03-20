@@ -64,6 +64,15 @@ List<Widget> makeWidget(BuildContext context, WidgetRef ref, List<ActivityHive> 
       content.add(activityDateWidget(filteredHistory[i].endTime));
       content.add(activityHistoryWidget(filteredHistory[i], context, ref));
     }
+  }else if(type == "Oldest"){
+    for (int i = 0; i < filteredHistory.length; i++) {
+      if (formatDate(filteredHistory[i].endTime).trim() !=
+          formatDate(current!).trim()) {
+        current = filteredHistory[i].endTime;
+        content.add(activityDateWidget(filteredHistory[i].endTime));
+      }
+      content.add(activityHistoryWidget(filteredHistory[i], context, ref));
+    }
   }
 
 

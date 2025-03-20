@@ -1,3 +1,4 @@
+import 'package:clockify_miniproject/core/utils/responsive_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,44 +59,20 @@ void showModal(BuildContext context){
   );
 }
 
-Widget inputTextForEmail(TextEditingController controller, String labelText, GlobalKey<FormState> key){
-  return TextFormField(
-    controller: controller,
-    keyboardType: TextInputType.emailAddress,
-    validator: validateEmail,
-    inputFormatters: [
-      FilteringTextInputFormatter.deny(RegExp(r'\s')),
-    ],
-    decoration: InputDecoration(
-      labelText: labelText,
-      labelStyle: GoogleFonts.nunitoSans(
-          fontSize: 20
-      ),
-      floatingLabelBehavior: FloatingLabelBehavior.auto,
-      enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF233971).withAlpha(128), width: 2)
-      ),
-      focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF233971), width:2)
-      ),
-    ),
-  );
-}
-
-Widget inputTextForPassword(WidgetRef ref, TextEditingController controller, String labelText, StateProvider<bool> provider, GlobalKey<FormState> key){
-  final bool isVisible = ref.watch(provider);
-  return TextFormField(
-    controller: controller,
-    keyboardType: TextInputType.visiblePassword,
-    validator: validatePassword,
-    obscureText: !isVisible,
-    inputFormatters: [
-      FilteringTextInputFormatter.deny(RegExp(r'\s')),
-    ],
-    decoration: InputDecoration(
-        labelText: "Input your password",
+Widget inputTextForEmail(BuildContext context, TextEditingController controller, String labelText, GlobalKey<FormState> key){
+  return SizedBox(
+    width: settingSizeForScreen(context, 400, 200),
+    child: TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.emailAddress,
+      validator: validateEmail,
+      inputFormatters: [
+        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+      ],
+      decoration: InputDecoration(
+        labelText: labelText,
         labelStyle: GoogleFonts.nunitoSans(
-            fontSize: 20
+            fontSize: settingSizeForText(context, 16, 14)
         ),
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         enabledBorder: UnderlineInputBorder(
@@ -104,44 +81,77 @@ Widget inputTextForPassword(WidgetRef ref, TextEditingController controller, Str
         focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: Color(0xFF233971), width:2)
         ),
-        suffixIcon: GestureDetector(
-            onTap: (){
-              ref.read(provider.notifier).state = !isVisible;
-            },
-            child: Icon(isVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined)
-        )
+      ),
     ),
   );
 }
 
-Widget inputTextForConfirmPassword(WidgetRef ref, TextEditingController controller, String labelText, StateProvider<bool> provider, TextEditingController controller2){
+Widget inputTextForPassword(BuildContext context, WidgetRef ref, TextEditingController controller, String labelText, StateProvider<bool> provider, GlobalKey<FormState> key){
   final bool isVisible = ref.watch(provider);
-  return TextFormField(
-    controller: controller,
-    keyboardType: TextInputType.visiblePassword,
-    validator: (value) => validateConfirmPassword(value, controller2.text),
-    obscureText: !isVisible,
-    inputFormatters: [
-      FilteringTextInputFormatter.deny(RegExp(r'\s')),
-    ],
-    decoration: InputDecoration(
-        labelText: "Input your password",
-        labelStyle: GoogleFonts.nunitoSans(
-            fontSize: 20
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
-        enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF233971).withAlpha(128), width: 2)
-        ),
-        focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF233971), width:2)
-        ),
-        suffixIcon: GestureDetector(
-            onTap: (){
-              ref.read(provider.notifier).state = !isVisible;
-            },
-            child: Icon(isVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined)
-        )
+  return SizedBox(
+    width: settingSizeForScreen(context, 400, 200),
+    child: TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.visiblePassword,
+      validator: validatePassword,
+      obscureText: !isVisible,
+      inputFormatters: [
+        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+      ],
+      decoration: InputDecoration(
+          labelText: "Input your password",
+          labelStyle: GoogleFonts.nunitoSans(
+              fontSize: settingSizeForText(context, 16, 14)
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF233971).withAlpha(128), width: 2)
+          ),
+          focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF233971), width:2)
+          ),
+          suffixIcon: GestureDetector(
+              onTap: (){
+                ref.read(provider.notifier).state = !isVisible;
+              },
+              child: Icon(isVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined)
+          )
+      ),
+    ),
+  );
+}
+
+Widget inputTextForConfirmPassword(BuildContext context,WidgetRef ref, TextEditingController controller, String labelText, StateProvider<bool> provider, TextEditingController controller2){
+  final bool isVisible = ref.watch(provider);
+  return SizedBox(
+    width: settingSizeForScreen(context, 400, 200),
+    child: TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.visiblePassword,
+      validator: (value) => validateConfirmPassword(value, controller2.text),
+      obscureText: !isVisible,
+      inputFormatters: [
+        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+      ],
+      decoration: InputDecoration(
+          labelText: "Input your password",
+          labelStyle: GoogleFonts.nunitoSans(
+              fontSize: settingSizeForText(context, 16, 14)
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF233971).withAlpha(128), width: 2)
+          ),
+          focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF233971), width:2)
+          ),
+          suffixIcon: GestureDetector(
+              onTap: (){
+                ref.read(provider.notifier).state = !isVisible;
+              },
+              child: Icon(isVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined)
+          )
+      ),
     ),
   );
 }

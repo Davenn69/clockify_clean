@@ -127,12 +127,12 @@ class ActivityScreen extends ConsumerWidget{
                           flex: 2,
                           child: DropdownButtonFormField<String>(
                             isExpanded : true,
-                            value: ref.watch(selectedChoiceProvider)??"Latest Date",
+                            value: ref.watch(selectedChoiceProvider)??"Oldest",
                             onChanged: (String? value){
                               ref.read(selectedChoiceProvider.notifier).state = value;
                               // ref.refresh(historyHiveStateNotifierProvider);
                             },
-                            items: <String>['Latest Date', "Nearby"].map<DropdownMenuItem<String>>((String value){
+                            items: <String>['Latest Date', "Nearby", "Oldest"].map<DropdownMenuItem<String>>((String value){
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(
@@ -166,8 +166,6 @@ class ActivityScreen extends ConsumerWidget{
                     final historyState = ref.watch(historyHiveStateNotifierProvider).history;
                     return Column(children: makeWidget(context, ref, historyState));
                   })
-
-
                 ],
               ),
             ),

@@ -5,7 +5,7 @@ class SendForgotPasswordLinkUseCase{
 
   SendForgotPasswordLinkUseCase(this.repository);
 
-  Future<Map<String, dynamic>> call(String email)async{
+  Future<Map<String, dynamic>?> call(String email)async{
     return await repository.sendForgotPasswordLink(email);
   }
 }

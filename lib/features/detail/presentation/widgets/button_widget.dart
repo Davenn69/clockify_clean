@@ -1,4 +1,5 @@
 import 'package:clockify_miniproject/features/activity/application/providers/activity_repository_provider.dart';
+import 'package:clockify_miniproject/features/detail/application/providers/detail_providers.dart';
 import 'package:clockify_miniproject/features/detail/presentation/widgets/detail_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,6 +54,8 @@ Widget saveDeleteState(WidgetRef ref, TextEditingController controller, Activity
   final type = ref.watch(selectedChoiceProvider);
   final lat = ref.watch(timeLocationProvider).lat;
   final lng = ref.watch(timeLocationProvider).lng;
+  final changedStartTime = ref.watch(changedStartTimeProvider);
+  final changedEndTime = ref.watch(changedEndTimeProvider);
 
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -83,7 +86,7 @@ Widget saveDeleteState(WidgetRef ref, TextEditingController controller, Activity
                           return;
                         }
                         WidgetsBinding.instance.addPostFrameCallback((_){
-                          historyNotifier.updateExistingActivity(ActivityHive(uuid : activity.uuid, description: controller.text, startTime: activity.startTime, endTime: activity.endTime, locationLat: activity.locationLat, locationLng: activity.locationLng, createdAt: activity.createdAt, updatedAt: activity.updatedAt, userUuid: activity.userUuid), token, type!, lat!, lng!);
+                          historyNotifier.updateExistingActivity(ActivityHive(uuid : activity.uuid, description: controller.text, startTime: changedStartTime, endTime: changedEndTime, locationLat: activity.locationLng, locationLng: activity.locationLat, createdAt: activity.createdAt, updatedAt: activity.updatedAt, userUuid: activity.userUuid), token, type!, lat!, lng!);
                           Navigator.pop(context);
                           showModal(context);
                         });

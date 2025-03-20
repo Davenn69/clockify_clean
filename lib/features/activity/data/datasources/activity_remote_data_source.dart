@@ -7,8 +7,9 @@ class ActivityRemoteDataSource{
   // final baseUrl = "https://light-master-eagle.ngrok-free.app/api/v1/";
   // final baseUrl = "http://192.168.126.1:3000/api/v1/";
   // final baseUrl = "http://192.168.86.26:3000/api/v1/";
-  final baseUrl = "http://192.168.1.8:3000/api/v1/";
+  // final baseUrl = "http://192.168.1.8:3000/api/v1/";
   // final baseUrl = "https://192.168.43.1:3000/api/v1/";
+  final baseUrl = "https://f20d-103-19-109-29.ngrok-free.app/api/v1/";
   const ActivityRemoteDataSource();
 
   Future<Response> getHistory(String token)async{
@@ -133,22 +134,34 @@ class ActivityRemoteDataSource{
     }
   }
 
-  Future<Response> updateActivity(String uuid,String description, String token)async{
+  Future<Response> updateActivity(String uuid,String description, String token, DateTime startTime, DateTime endTime, double lat, double lng)async{
     Dio dio = Dio();
     try{
+      print(startTime);
+      print(endTime);
+      var data = json.encode({
+        "description" : description,
+        "start_time" : startTime.toIso8601String(),
+        "end_time" : endTime.toIso8601String(),
+        "duration" : endTime.difference(startTime).inSeconds,
+        "location_lat" : lat,
+        "location_lng" : lng,
+        "updatedAt" : DateTime.now().toIso8601String()
+      });
       final response = await dio.patch(
           "${baseUrl}activity/$uuid",
-          data: {
-            "description" : description
-          },
+          data: data,
           options: Options(
             headers: {
               "Authorization" : "Bearer $token"
             }
           )
       );
+      print("Response response $response");
       return response;
     }on DioException catch(e){
+      print("Response response ${e.message}");
+      print("Response response ${e.response}");
       if (e.response != null) {
         return e.response!;
       } else {
