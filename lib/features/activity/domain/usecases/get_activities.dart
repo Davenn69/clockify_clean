@@ -6,8 +6,8 @@ class GetActivities{
 
   GetActivities(this.repository);
 
-  Future<List<ActivityHive>> execute(String token, String type, double lat, double lng) async{
-    return await repository.getAllActivities(token, type, lat, lng);
+  Future<List<ActivityHive>> execute(String token, String type, String query, double lat, double lng) async{
+    return await repository.getAllActivities(token, type, query, lat, lng);
   }
 
 }

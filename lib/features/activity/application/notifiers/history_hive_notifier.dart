@@ -22,15 +22,16 @@ class HistoryHiveStateNotifier extends StateNotifier<HistoryHiveState> {
   final String type;
   double lat;
   double lng;
+  String query;
 
   HistoryHiveStateNotifier(this.ref, this.saveActivities, this.getActivities,
-      this.deleteActivity, this.updateActivity, this.token, this.type, this.lat, this.lng) : super(HistoryHiveState(history: [])) {
+      this.deleteActivity, this.updateActivity, this.token, this.type, this.lat, this.lng, this.query) : super(HistoryHiveState(history: [])) {
     Future.microtask(() async {
-      await _init(token, type, lat, lng);
+      await _init(token, type, query, lat, lng);
     });
   }
 
-  Future<void> _init(String token, String type, double lat, double lng) async {
+  Future<void> _init(String token, String type, String query, double lat, double lng) async {
     try {
       getActivities = await ref.watch(getActivitiesProvider.future);
       saveActivities = await ref.watch(saveActivitiesProvider.future);
@@ -45,7 +46,7 @@ class HistoryHiveStateNotifier extends StateNotifier<HistoryHiveState> {
   }
 
   Future<void> getAllData(String token, String type, double lat, double lng) async {
-    final activities = await getActivities.execute(token, type, lat, lng);
+    final activities = await getActivities.execute(token, type, query,lat, lng);
 
     state = HistoryHiveState(history: [...activities]);
   }

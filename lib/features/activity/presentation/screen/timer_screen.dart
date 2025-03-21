@@ -1,3 +1,4 @@
+import 'package:clockify_miniproject/core/utils/responsive_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
 
   @override
   Widget build(BuildContext context){
+    Orientation orientation = MediaQuery.of(context).orientation;
     final condition = ref.watch(isStart);
     final stopWatchTime = ref.watch(stopWatchTimeProvider);
     final state = ref.watch(timeLocationProvider);
@@ -51,16 +53,16 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(height: 40),
+                  settingSizeForScreenSpaces(context, 0.05, 0),
                   Hero(
                     tag: 'logo',
                     child: Image.asset(
                         "assets/images/clockify-medium.png",
-                        width: 200,
+                        width: settingSizeForScreen(context, 200, 150),
                         fit: BoxFit.cover
                     ),
                   ),
-                  SizedBox(height: 40),
+                  settingSizeForScreenSpaces(context, 0.05, 0.05),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -78,7 +80,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                                 style: GoogleFonts.nunitoSans(
                                     color: Color(0xFFF8D068),
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 20
+                                    fontSize: settingSizeForText(context, 20, 18)
                                 ),
                               ),
                             ),
@@ -87,7 +89,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                           Hero(
                             tag: "timer-activity",
                             child: AnimatedContainer(
-                              width: MediaQuery.of(context).size.width * 0.20,
+                              width: orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.20 : MediaQuery.of(context).size.height * 0.30,
                               height: 3,
                               color : Color(0xFFF8D068),
                               duration: Duration(milliseconds: 300),
@@ -114,7 +116,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                       ),
                     ],
                   ),
-                  SizedBox(height: 80),
+                  settingSizeForScreenSpaces(context, 0.1, 0.1),
                   Text(
                     stopWatchTime.when(data: (value)=> StopWatchTimer.getDisplayTime(value, milliSecond: false).replaceAll(":", " : "), loading: () => "00 : 00 : 00", error: (err, stack) => "Error"),
                     style: GoogleFonts.nunitoSans(
@@ -123,7 +125,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                         color : Colors.white
                     ),
                   ),
-                  SizedBox(height: 60),
+                  settingSizeForScreenSpaces(context, 0.1, 0.1),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
@@ -220,6 +222,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                   ),
                   SizedBox(height: 20),
                   SizedBox(
+                    width: 400,
                     height: 100,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),

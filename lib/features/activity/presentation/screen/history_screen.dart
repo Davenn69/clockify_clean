@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/navigation/navigation_service.dart';
+import '../../../../core/utils/responsive_functions.dart';
 import '../../application/providers/history_providers.dart';
 import '../../application/providers/timer_providers.dart';
 import '../widgets/history_widgets.dart';
@@ -19,6 +20,7 @@ class ActivityScreen extends ConsumerWidget{
     // final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
     // final historyState = ref.watch(historyHiveStateNotifierProvider).history;
     // final token = ref.watch(tokenProvider);
+    Orientation orientation = MediaQuery.of(context).orientation;
     final lat = ref.watch(timeLocationProvider).lat;
     final lng = ref.watch(timeLocationProvider).lng;
 
@@ -30,16 +32,16 @@ class ActivityScreen extends ConsumerWidget{
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(height: 40),
+                  settingSizeForScreenSpaces(context, 0.05, 0),
                   Hero(
                     tag: 'logo',
                     child: Image.asset(
                         "assets/images/clockify-medium.png",
-                        width: 200,
+                        width: settingSizeForScreen(context, 200, 150),
                         fit: BoxFit.cover
                     ),
                   ),
-                  SizedBox(height: 40),
+                  settingSizeForScreenSpaces(context, 0.05, 0.05),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -70,7 +72,7 @@ class ActivityScreen extends ConsumerWidget{
                                 style: GoogleFonts.nunitoSans(
                                     color: Color(0xFFF8D068),
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 20
+                                    fontSize: settingSizeForText(context, 20, 18)
                                 ),
                               ),
                             ),
@@ -79,7 +81,7 @@ class ActivityScreen extends ConsumerWidget{
                           Hero(
                             tag: "timer-activity",
                             child: AnimatedContainer(
-                              width: MediaQuery.of(context).size.width * 0.20,
+                              width:  orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.20 : MediaQuery.of(context).size.height * 0.30,
                               height: 3,
                               color : Color(0xFFF8D068),
                               duration: Duration(milliseconds: 300),
@@ -100,9 +102,13 @@ class ActivityScreen extends ConsumerWidget{
                             child: TextFormField(
                               controller: _searchController,
                               onChanged: (value){
-                                _debouncer.run((){
-                                  ref.read(searchQueryProvider.notifier).state = value;
-                                });
+                                if(value.length >= 3){
+                                  _debouncer.run((){
+                                    ref.read(searchQueryProvider.notifier).state = value;
+                                  });
+                                }
+
+                                ref.read(searchQueryProvider.notifier).state = "";
                               },
                               decoration: InputDecoration(
                                   hintText: "Search Activity...",

@@ -17,8 +17,9 @@ final historyHiveStateNotifierProvider = StateNotifierProvider<HistoryHiveStateN
   final type = ref.watch(selectedChoiceProvider);
   final lat = ref.watch(timeLocationProvider).lat;
   final lng = ref.watch(timeLocationProvider).lng;
+  final query = ref.watch(searchQueryProvider);
 
-  return HistoryHiveStateNotifier(ref, saveActivities, getActivities, deleteActivity, updateActivity, token, type!, lat!, lng!);
+  return HistoryHiveStateNotifier(ref, saveActivities, getActivities, deleteActivity, updateActivity, token, type!, lat!, lng!, query);
 });
 
 final searchQueryProvider = StateProvider<String>((ref)=> "");
