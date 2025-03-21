@@ -1,4 +1,5 @@
 import 'package:clockify_miniproject/features/activity/data/datasources/activity_remote_data_source.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../domain/entities/activity_entity.dart';
@@ -7,7 +8,7 @@ import '../models/activity_hive_model.dart';
 
 abstract class ActivityRepository{
   Future<void> saveActivity(ActivityEntity entity, String token);
-  Future<List<ActivityHive>> getAllActivities(String token, String type, double lat, double lng);
+  Future<List<ActivityHive>> getAllActivities(String token, String type, String query, double lat, double lng);
   Future<void> deleteActivity(String uuid, String token);
   Future<void> updateActivity(ActivityHive entity, String token);
 }
@@ -18,10 +19,10 @@ class ActivityRepositoryImpl implements ActivityRepository{
 
   ActivityRepositoryImpl(this.dataSource, this.remoteDataSource);
 
-  // Future<bool> hasInternet() async {
-  //   var connectivityResults = await Connectivity().checkConnectivity();
-  //   return connectivityResults.contains(ConnectivityResult.mobile) || connectivityResults.contains(ConnectivityResult.wifi);
-  // }
+  Future<bool> hasInternet() async {
+    var connectivityResults = await Connectivity().checkConnectivity();
+    return connectivityResults.contains(ConnectivityResult.mobile) || connectivityResults.contains(ConnectivityResult.wifi);
+  }
 
   @override
   Future<void> saveActivity(ActivityEntity entity, String token) async {
@@ -64,7 +65,7 @@ class ActivityRepositoryImpl implements ActivityRepository{
   @override
   Future<void> updateActivity(ActivityHive entity, String token) async{
     try{
-      final response = await remoteDataSource.updateActivity(entity.uuid, entity.description, token, entity.startTime, entity.endTime, entity.locationLat, entity.locationLng);
+      await remoteDataSource.updateActivity(entity.uuid, entity.description, token, entity.startTime, entity.endTime, entity.locationLat, entity.locationLng);
 
       final activityHive = ActivityHive(
         uuid: entity.uuid,
@@ -84,91 +85,42 @@ class ActivityRepositoryImpl implements ActivityRepository{
     }
   }
   @override
-  Future<List<ActivityHive>> getAllActivities(String token, String type, double lat, double lng) async {
+  Future<List<ActivityHive>> getAllActivities(String token, String type, String query, double lat, double lng) async {
 
-    if(type == "Latest Date"){
-      try{
-        // print(await hasInternet());
-        // if(await hasInternet()){
-        final response = await remoteDataSource.getFilteredByLatestDateHistory(token);
-        final data = response.data['data']['activities'];
-        List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
-
-        for(int i=0; i<remoteActivities.length; i++){
-          dataSource.saveActivity(remoteActivities[i]);
-        }
-
-        return remoteActivities;
-        // }
-      }catch(e){
-        // throw Exception("Repository error $e");
-      }
-    }else if(type == "Nearby"){
-      try{
-        // print(await hasInternet());
-        // if(await hasInternet()){
-        final response = await remoteDataSource.getFilteredByNearbyHistory(token, lat, lng);
-        final data = response.data['data']['activities'];
-        List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
-
-        for(int i=0; i<remoteActivities.length; i++){
-          dataSource.saveActivity(remoteActivities[i]);
-        }
-
-        return remoteActivities;
-        // }
-      }catch(e){
-        // throw Exception("Repository error $e");
-      }
-    }else if(type=="Oldest"){
-      try{
-        // print(await hasInternet());
-        // if(await hasInternet()){
-        final response = await remoteDataSource.getHistory(token);
-        final data = response.data['data']['activities'];
-        List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
-
-        for(int i=0; i<remoteActivities.length; i++){
-          dataSource.saveActivity(remoteActivities[i]);
-        }
-
-        return remoteActivities;
-        // }
-      }catch(e){
-        // throw Exception("Repository error $e");
-      }
-    }
-
-    try{
+    try {
       // print(await hasInternet());
-      // if(await hasInternet()){
-        final response = await remoteDataSource.getHistory(token);
+      if (await hasInternet()) {
+        final response = await remoteDataSource.getHistory(
+            token, type, query, lat, lng);
         final data = response.data['data']['activities'];
-        List<ActivityHive> remoteActivities = data.map((json)=>ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
+        List<ActivityHive> remoteActivities = data.map((json) =>
+            ActivityHive.fromJson(json)).cast<ActivityHive>().toList();
 
-        for(int i=0; i<remoteActivities.length; i++){
+        for (int i = 0; i < remoteActivities.length; i++) {
           dataSource.saveActivity(remoteActivities[i]);
         }
 
         return remoteActivities;
-      // }
-    }catch(e){
+      }
+
+      return [];
+      } catch (e) {
+      return [];
       // throw Exception("Repository error $e");
     }
 
-
-    final activities = await dataSource.getAllActivities();
-    return activities.map((e) => ActivityHive(
-      uuid: e.uuid,
-      description: e.description,
-      createdAt: e.createdAt,
-      updatedAt: e.updatedAt,
-      startTime: e.startTime,
-      endTime: e.endTime,
-      locationLat: e.locationLat,
-      locationLng: e.locationLng,
-      userUuid: e.userUuid
-    )).toList();
+    // final activities = await dataSource.getAllActivities();
+    // return activities.map((e) => ActivityHive(
+    //   uuid: e.uuid,
+    //   description: e.description,
+    //   createdAt: e.createdAt,
+    //   updatedAt: e.updatedAt,
+    //   startTime: e.startTime,
+    //   endTime: e.endTime,
+    //   locationLat: e.locationLat,
+    //   locationLng: e.locationLng,
+    //   userUuid: e.userUuid
+    // )).toList();
 
   }
 

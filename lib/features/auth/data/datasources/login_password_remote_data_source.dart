@@ -6,7 +6,8 @@ class LoginPasswordRemoteDataSource{
   // final baseUrl = "http://192.168.126.1:3000/api/v1/";
   // final baseUrl = "http://192.168.86.26:3000/api/v1/";
   // final baseUrl = "http://192.168.1.8:3000/api/v1/";
-  final baseUrl = "https://f20d-103-19-109-29.ngrok-free.app/api/v1/";
+  // final baseUrl = "https://f20d-103-19-109-29.ngrok-free.app/api/v1/";
+  final baseUrl = "https://97d4-103-121-171-28.ngrok-free.app/api/v1/";
   // final baseUrl = "https://192.168.43.1:3000/api/v1/";
   LoginPasswordRemoteDataSource();
 
@@ -34,16 +35,31 @@ class LoginPasswordRemoteDataSource{
 
       return response;
     }on DioException catch(e){
-
-      if (e.response != null) {
-        return e.response!;
-      } else {
+      if(e.response == null){
         return Response(
           requestOptions: RequestOptions(path: "${baseUrl}user/login"),
           statusCode: 500,
           data: {"error": "Unknown error occurred"},
         );
       }
+
+      if(e.response?.statusMessage!.contains("Not Found") ?? false){
+        return Response(
+          requestOptions: RequestOptions(path: "${baseUrl}user/login"),
+          statusCode: 500,
+          data: {"error": "Unknown error occurred"},
+        );
+      }
+
+      if(e.response?.statusMessage!.contains("The endpoint") ?? false){
+        return Response(
+          requestOptions: RequestOptions(path: "${baseUrl}user/login"),
+          statusCode: 500,
+          data: {"error": "Unknown error occurred"},
+        );
+      }
+
+      return e.response!;
     }catch(e){
       throw Exception("Error $e");
     }
@@ -77,16 +93,31 @@ class LoginPasswordRemoteDataSource{
         throw Exception("Register failed: ${response.statusMessage}");
       }
     }on DioException catch(e){
-
-      if (e.response != null) {
-        return e.response!;
-      } else {
+      if(e.response == null){
         return Response(
           requestOptions: RequestOptions(path: "${baseUrl}user/login"),
           statusCode: 500,
           data: {"error": "Unknown error occurred"},
         );
       }
+
+      if(e.response?.statusMessage!.contains("Not Found") ?? false){
+        return Response(
+          requestOptions: RequestOptions(path: "${baseUrl}user/login"),
+          statusCode: 500,
+          data: {"error": "Unknown error occurred"},
+        );
+      }
+
+      if(e.response?.statusMessage!.contains("The endpoint") ?? false){
+        return Response(
+          requestOptions: RequestOptions(path: "${baseUrl}user/login"),
+          statusCode: 500,
+          data: {"error": "Unknown error occurred"},
+        );
+      }
+
+      return e.response!;
     }catch(e){
       throw Exception("This is an Error ppppppppppppppppppppp $e");
     }
@@ -109,12 +140,32 @@ class LoginPasswordRemoteDataSource{
       }else{
         throw Exception("Register failed: ${response.statusMessage}");
       }
-    }on DioException catch(dioError){
-      print(dioError.message);
-      print(dioError.response);
+    }on DioException catch(e){
+      if(e.response == null){
+        return Response(
+          requestOptions: RequestOptions(path: "${baseUrl}user/login"),
+          statusCode: 500,
+          data: {"error": "Unknown error occurred"},
+        );
+      }
 
-      return dioError.response;
-      // throw Exception("DioError: ${dioError.message}");
+      if(e.response?.statusMessage!.contains("Not Found") ?? false){
+        return Response(
+          requestOptions: RequestOptions(path: "${baseUrl}user/login"),
+          statusCode: 500,
+          data: {"error": "Unknown error occurred"},
+        );
+      }
+
+      if(e.response?.statusMessage!.contains("The endpoint") ?? false){
+        return Response(
+          requestOptions: RequestOptions(path: "${baseUrl}user/login"),
+          statusCode: 500,
+          data: {"error": "Unknown error occurred"},
+        );
+      }
+
+      return e.response!;
     }catch(e){
       throw Exception("Error $e");
     }

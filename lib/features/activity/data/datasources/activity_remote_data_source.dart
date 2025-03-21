@@ -9,93 +9,45 @@ class ActivityRemoteDataSource{
   // final baseUrl = "http://192.168.86.26:3000/api/v1/";
   // final baseUrl = "http://192.168.1.8:3000/api/v1/";
   // final baseUrl = "https://192.168.43.1:3000/api/v1/";
-  final baseUrl = "https://f20d-103-19-109-29.ngrok-free.app/api/v1/";
+  // final baseUrl = "https://f20d-103-19-109-29.ngrok-free.app/api/v1/";
+  final baseUrl = "https://97d4-103-121-171-28.ngrok-free.app/api/v1/";
   const ActivityRemoteDataSource();
 
-  Future<Response> getHistory(String token)async{
+  Future<Response> getHistory(String token, String typeIn, String description, double lat, double lng)async{
     Dio dio = Dio();
-
-    try{
-      final response = await dio.get(
-        "${baseUrl}activity/",
-        options: Options(
-          headers: {
-            "authorization": "Bearer $token",
-            "Content-Type": "application/json",
-          },
-        ),
-      );
-      return response;
-    }on DioException catch(e){
-      if (e.response != null) {
-        return e.response!;
-      } else {
-        return Response(
-          requestOptions: RequestOptions(path: "${baseUrl}activity/"),
-          statusCode: 500,
-          data: {"error": "Unknown error occurred"},
-        );
-      }
-    }catch(e){
-      throw Exception("Error $e");
+    String type;
+    if(typeIn == "Latest Date"){
+      type = "latestdate";
+    }else if(typeIn == "Oldest"){
+      type = "oldestdate";
+    }else{
+      type="nearby";
     }
-  }
 
-  Future<Response> getFilteredByLatestDateHistory(String token)async{
-    Dio dio = Dio();
-
-    try{
-      final response = await dio.get(
-        "${baseUrl}activity/filter?sortBy=latest",
-        options: Options(
-          headers: {
-            "authorization": "Bearer $token",
-            "Content-Type": "application/json",
-          },
-        ),
-      );
-      return response;
-    }on DioException catch(e){
-      if (e.response != null) {
-        return e.response!;
-      } else {
-        return Response(
-          requestOptions: RequestOptions(path: "${baseUrl}activity/"),
-          statusCode: 500,
-          data: {"error": "Unknown error occurred"},
+      try{
+        final response = await dio.get(
+          "${baseUrl}activity?description=$description&sortBy=$type&lat=$lat&lng=$lng",
+          options: Options(
+            headers: {
+              "authorization": "Bearer $token",
+              "Content-Type": "application/json",
+            },
+          ),
         );
+        return response;
+      }on DioException catch(e){
+        if (e.response != null) {
+          return e.response!;
+        } else {
+          return Response(
+            requestOptions: RequestOptions(path: "${baseUrl}activity/"),
+            statusCode: 500,
+            data: {"error": "Unknown error occurred"},
+          );
+        }
+      }catch(e){
+        throw Exception("Error $e");
       }
-    }catch(e){
-      throw Exception("Error $e");
-    }
-  }
-
-  Future<Response> getFilteredByNearbyHistory(String token, double lat, double lng)async{
-    Dio dio = Dio();
-    try{
-      final response = await dio.get(
-        "${baseUrl}activity/filter?sortBy=distance&lat=$lat&lng=$lng",
-        options: Options(
-          headers: {
-            "authorization": "Bearer $token",
-            "Content-Type": "application/json",
-          },
-        ),
-      );
-      return response;
-    }on DioException catch(e){
-      if (e.response != null) {
-        return e.response!;
-      } else {
-        return Response(
-          requestOptions: RequestOptions(path: "${baseUrl}activity/"),
-          statusCode: 500,
-          data: {"error": "Unknown error occurred"},
-        );
-      }
-    }catch(e){
-      throw Exception("Error $e");
-    }
   }
 
   Future<Response> saveHistory(ActivityEntity entity, String token)async{
@@ -137,8 +89,6 @@ class ActivityRemoteDataSource{
   Future<Response> updateActivity(String uuid,String description, String token, DateTime startTime, DateTime endTime, double lat, double lng)async{
     Dio dio = Dio();
     try{
-      print(startTime);
-      print(endTime);
       var data = json.encode({
         "description" : description,
         "start_time" : startTime.toIso8601String(),
@@ -157,11 +107,8 @@ class ActivityRemoteDataSource{
             }
           )
       );
-      print("Response response $response");
       return response;
     }on DioException catch(e){
-      print("Response response ${e.message}");
-      print("Response response ${e.response}");
       if (e.response != null) {
         return e.response!;
       } else {

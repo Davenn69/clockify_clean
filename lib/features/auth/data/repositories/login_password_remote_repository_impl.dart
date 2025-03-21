@@ -22,7 +22,7 @@ class LoginPasswordRemoteRepositoryImpl implements LoginPasswordRemoteRepository
     if(response.statusCode == 200){
       return LoginSuccess(response.data["status"], response.data["message"], UserData(response.data['user']["uuid"], response.data['user']["email"]), response.data["token"]).toMap();
     }else if (response.statusCode == 404 || response.statusCode == 401){
-      return LoginFail(response.data["status"], ErrorData(response.data['errors']["message"])).toMap();
+      return LoginFail(response.data["status"] ?? "fail", ErrorData(response.data['errors']["message"] ?? "Unknown error occurred")).toMap();
     }
 
     return response.data;
@@ -40,6 +40,6 @@ class LoginPasswordRemoteRepositoryImpl implements LoginPasswordRemoteRepository
   Future<Map<String, dynamic>> sendForgotPasswordLink(String email)async{
     Response? response = await dataSource.sendForgotPasswordLink(email);
 
-    return response != null ? response?.data : {"error" : "Unknown error occurred"};
+    return response != null ? response.data : {"error" : "Unknown error occurred"};
   }
 }

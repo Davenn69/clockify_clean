@@ -1,3 +1,4 @@
+import 'package:clockify_miniproject/core/utils/responsive_functions.dart';
 import 'package:clockify_miniproject/features/detail/application/providers/detail_providers.dart';
 import 'package:clockify_miniproject/features/detail/presentation/widgets/detail_widgets.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class DetailScreen extends ConsumerStatefulWidget{
   ConsumerState<DetailScreen> createState() => DetailScreenState();
 }
 class DetailScreenState extends ConsumerState<DetailScreen>{
+  final TextEditingController descriptionController = TextEditingController();
   late DateTime changedTime;
 
   @override
@@ -24,6 +26,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
     super.initState();
 
     Future.microtask((){
+      descriptionController.text = widget.activity.description;
       ref.read(changedStartTimeProvider.notifier).state = widget.activity.startTime;
       ref.read(changedEndTimeProvider.notifier).state = widget.activity.endTime;
     });
@@ -33,14 +36,8 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
   Widget build(BuildContext context){
     var changedStartTime = ref.watch(changedStartTimeProvider);
     var changedEndTime = ref.watch(changedEndTimeProvider);
-    final TextEditingController descriptionController = TextEditingController();
-    descriptionController.text = widget.activity.description;
 
     Future<void> selectDateStartTime(BuildContext context, DateTime startTime, DateTime endTime) async {
-      if(startTime == null || endTime == null){
-        return;
-      }
-
       DatePicker.showDatePicker(
           context,
           locale: LocaleType.en,
@@ -68,17 +65,12 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                 }
 
                 ref.read(changedStartTimeProvider.notifier).state = selectedDateTime;
-                print("Selected Date & Time: $selectedDateTime");
               },
             );
           });
     }
 
     Future<void> selectDateEndTime(BuildContext context, DateTime startTime, DateTime endTime) async {
-      if(startTime == null || endTime == null){
-        return;
-      }
-
       DatePicker.showDatePicker(
           context,
           locale: LocaleType.en,
@@ -106,7 +98,6 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                 }
 
                 ref.read(changedEndTimeProvider.notifier).state = selectedDateTime;
-                print("Selected Date & Time: $selectedDateTime");
               },
             );
           });
@@ -132,7 +123,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: 40),
+                settingSizeForScreenSpaces(context, 0.05, 0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
@@ -141,21 +132,21 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                       style: GoogleFonts.nunitoSans(
                           color: Color(0xFFF8D068),
                           fontWeight: FontWeight.bold,
-                          fontSize: 18
+                          fontSize: settingSizeForText(context, 18, 14)
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 80),
+                settingSizeForScreenSpaces(context, 0.1, 0.05),
                 Text(
                   formatDuration(changedEndTime.difference(changedStartTime)),
                   style: GoogleFonts.nunitoSans(
-                      fontSize: 38,
+                      fontSize: settingSizeForText(context, 38, 28),
                       fontWeight: FontWeight.bold,
                       color : Colors.white
                   ),
                 ),
-                SizedBox(height: 60),
+                settingSizeForScreenSpaces(context, 0.08, 0.05),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
@@ -168,7 +159,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                           Text(
                             "Start Time",
                             style: GoogleFonts.nunitoSans(
-                                fontSize: 12,
+                                fontSize: settingSizeForText(context, 12, 10),
                                 color: Colors.white
                             ),
                           ),
@@ -177,7 +168,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                             formatTime(changedStartTime),
                             style: GoogleFonts.nunitoSans(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: settingSizeForText(context, 16, 12),
                                 color: Colors.white
                             ),
                           ),
@@ -186,7 +177,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                             formatDate(changedStartTime),
                             style: GoogleFonts.nunitoSans(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                fontSize: settingSizeForText(context, 12, 10),
                                 color: Colors.white
                             ),
                           ),
@@ -202,7 +193,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                           Text(
                             "End Time",
                             style: GoogleFonts.nunitoSans(
-                                fontSize: 12,
+                                fontSize: settingSizeForText(context, 12, 10),
                                 color: Colors.white
                             ),
                           ),
@@ -211,7 +202,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                             formatTime(changedEndTime),
                             style: GoogleFonts.nunitoSans(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: settingSizeForText(context, 14, 12),
                                 color: Colors.white
                             ),
                           ),
@@ -220,7 +211,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                             formatDate(changedEndTime),
                             style: GoogleFonts.nunitoSans(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                fontSize: settingSizeForText(context, 12, 10),
                                 color: Colors.white
                             ),
                           ),
@@ -231,55 +222,64 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                 ),
                 SizedBox(height: 20),
                 SizedBox(
-                  width: 275,
-                  height: 60,
+                  width: settingSizeForScreen(context, 275, 200),
+                  height: settingSizeForScreen(context, 60, 40),
                   child: Container(
                     decoration: BoxDecoration(
                         color: Colors.white.withAlpha(50),
                         borderRadius: BorderRadius.circular(20)
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(
-                          Icons.location_on_outlined,
-                          size: 30,
-                          color: Color(0xFFF8D068),
+                    child: FittedBox(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 30,
+                              color: Color(0xFFF8D068),
+                            ),
+                            Text(
+                              "${widget.activity.locationLat} ${widget.activity.locationLng}",
+                              style: GoogleFonts.nunitoSans(
+                                  color: Colors.white,
+                                  fontSize: 16
+                              ),
+                            )
+                          ],
                         ),
-                        Text(
-                          "${widget.activity.locationLat} ${widget.activity.locationLng}",
-                          style: GoogleFonts.nunitoSans(
-                              color: Colors.white,
-                              fontSize: 16
-                          ),
-                        )
-                      ],
+                      ),
                     ),
                   ),
                 ),
                 SizedBox(height: 20),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: TextFormField(
-                    controller: descriptionController,
-                    keyboardType: TextInputType.text,
-                    maxLines: 5,
-                    style: GoogleFonts.nunitoSans(
-                        fontSize: 16,
-                        color: Colors.black
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.deny(RegExp(r'^\s+')),
-                    ],
-                    decoration: InputDecoration(
-                      hintText: "Write your activity here...",
-                      filled: true,
-                      fillColor: Colors.white,
-                      alignLabelWithHint: true,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)
+                SizedBox(
+                  width: settingSizeForScreen(context, 400, 300),
+                  height: settingSizeForScreen(context, 150, 100),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: TextFormField(
+                      controller: descriptionController,
+                      keyboardType: TextInputType.text,
+                      maxLines: 5,
+                      style: GoogleFonts.nunitoSans(
+                          fontSize: settingSizeForText(context, 16, 12),
+                          color: Colors.black
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'^\s+')),
+                      ],
+                      decoration: InputDecoration(
+                        hintText: "Write your activity here...",
+                        filled: true,
+                        fillColor: Colors.white,
+                        alignLabelWithHint: true,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      ),
                     ),
                   ),
                 ),
