@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/utils/date_formatting.dart';
 
-Widget activityDateWidget(DateTime date){
+Widget activityDateWidget(DateTime date, {bool isLoading = false}){
   return SizedBox(
       width: double.infinity,
       child: Container(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../core/utils/date_formatting.dart';
 import '../../../detail/presentation/screen/detail_screen.dart';
@@ -74,7 +75,7 @@ void showModal(BuildContext context){
   );
 }
 
-Widget activityHistoryWidget(ActivityHive activity, BuildContext context, WidgetRef ref){
+Widget activityHistoryWidget(ActivityHive activity, BuildContext context, WidgetRef ref, {bool isLoading = false}){
   final historyNotifier = ref.watch(historyHiveStateNotifierProvider.notifier);
   final token = ref.read(tokenProvider.notifier).state;
   final type = ref.watch(selectedChoiceProvider);

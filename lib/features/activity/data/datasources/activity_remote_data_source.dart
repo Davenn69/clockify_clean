@@ -10,7 +10,9 @@ class ActivityRemoteDataSource{
   // final baseUrl = "http://192.168.1.8:3000/api/v1/";
   // final baseUrl = "https://192.168.43.1:3000/api/v1/";
   // final baseUrl = "https://f20d-103-19-109-29.ngrok-free.app/api/v1/";
-  final baseUrl = "https://97d4-103-121-171-28.ngrok-free.app/api/v1/";
+  // final baseUrl = "https://97d4-103-121-171-28.ngrok-free.app/api/v1/";
+  final baseUrl = "https://cb52-2001-448a-90e0-210c-ed99-1d77-3f1f-343.ngrok-free.app/api/v1/";
+
   const ActivityRemoteDataSource();
 
   Future<Response> getHistory(String token, String typeIn, String description, double lat, double lng)async{
