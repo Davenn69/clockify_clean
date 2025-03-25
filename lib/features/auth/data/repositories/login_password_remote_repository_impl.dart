@@ -9,6 +9,7 @@ abstract class LoginPasswordRemoteRepository{
   Future<Map<String, dynamic>> fetchUserLogin(String email, String password);
   Future<Map<String, dynamic>> registerUserData(String email, String password, String confirmPassword);
   Future<Map<String, dynamic>> sendForgotPasswordLink(String email);
+  Future<Map<String, dynamic>> verifyEmail(String emailToken);
 }
 
 class LoginPasswordRemoteRepositoryImpl implements LoginPasswordRemoteRepository{
@@ -41,5 +42,12 @@ class LoginPasswordRemoteRepositoryImpl implements LoginPasswordRemoteRepository
     Response? response = await dataSource.sendForgotPasswordLink(email);
 
     return response != null ? response.data : {"error" : "Unknown error occurred"};
+  }
+
+  @override
+  Future<Map<String, dynamic>> verifyEmail(String emailToken) async{
+    Response? response = await dataSource.verifyEmail(emailToken);
+
+    return response != null ? response.data : {"error" : 'Unknown error occurred'};
   }
 }

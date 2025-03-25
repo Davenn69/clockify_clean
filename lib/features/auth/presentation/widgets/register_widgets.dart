@@ -1,3 +1,4 @@
+
 import 'package:clockify_miniproject/core/utils/responsive_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +21,7 @@ void showModal(BuildContext context){
             height: 400,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,6 +59,82 @@ void showModal(BuildContext context){
       }
   );
 }
+
+// void showModalForVerifyEmail(BuildContext context, WidgetRef ref, String emailToken){
+//   showDialog(
+//       context: context,
+//       builder: (BuildContext context){
+//         return Dialog(
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(20),
+//           ),
+//           child: SizedBox(
+//             width: 350,
+//             height: 400,
+//             child: Padding(
+//               padding: const EdgeInsets.all(16.0),
+//               child: Center(
+//                 child: SingleChildScrollView(
+//                   child: Column(
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     crossAxisAlignment: CrossAxisAlignment.center,
+//                     children: <Widget>[
+//                       Text(
+//                         "Email is not verified",
+//                         style: GoogleFonts.nunitoSans(
+//                           fontSize: 24,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                         textAlign: TextAlign.center,
+//                       ),
+//                       SizedBox(height: 20),
+//                       Text(
+//                         "You need to verify your email before you can use it",
+//                         style: GoogleFonts.nunitoSans(
+//                             fontSize: 18,
+//                             color: Colors.grey.shade500
+//                         ),
+//                         textAlign: TextAlign.center,
+//                       ),
+//                       SizedBox(height: 50),
+//                       ElevatedButton(onPressed: ()async{
+//                         final response = await ref.read(verifyEmailProvider(emailToken).future);
+//                         if(response['error'] == "Unknown error occurred"){
+//
+//                           showModalForRegisterError(context, "Unknown error occurred");
+//                           return;
+//                         }
+//
+//
+//                         if(response['status'] == 'fail'){
+//                           WidgetsBinding.instance.addPostFrameCallback((_){
+//                             showModalForRegisterError(context, response['errors']['message']);
+//                           });
+//                         }else{
+//                           WidgetsBinding.instance.addPostFrameCallback((_){
+//                             showModal(context);
+//                             Timer(Duration(seconds: 2), () {
+//                               Navigator.pushReplacement(context, NavigationService.createRouteForRegisterToLoginScreen());
+//                             });
+//                           });
+//                         }
+//                       }, child: Text(
+//                         "Verify",
+//                         style: GoogleFonts.nunitoSans(
+//                           fontSize: 16,
+//                           color: Colors.black54
+//                         ),
+//                       ))
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         );
+//       }
+//   );
+// }
 
 Widget inputTextForEmail(BuildContext context, TextEditingController controller, String labelText, GlobalKey<FormState> key){
   return SizedBox(

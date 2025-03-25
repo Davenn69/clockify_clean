@@ -5,6 +5,7 @@ import 'package:clockify_miniproject/features/auth/domain/usecases/fetch_login_d
 import 'package:clockify_miniproject/features/auth/domain/usecases/get_session_key_usecase.dart';
 import 'package:clockify_miniproject/features/auth/domain/usecases/register_user_data_usecase.dart';
 import 'package:clockify_miniproject/features/auth/domain/usecases/send_forgot_password_link_usecase.dart';
+import 'package:clockify_miniproject/features/auth/domain/usecases/verify_user_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
@@ -61,4 +62,9 @@ final registerUserDataProvider = FutureProvider.family((ref, Map<String, String>
 final sendPasswordLinkProvider = FutureProvider.family((ref, String email)async{
   final repository = await ref.watch(loginPasswordRemoteRepositoryProvider.future);
   return SendForgotPasswordLinkUseCase(repository).call(email);
+});
+
+final verifyEmailProvider = FutureProvider.family((ref, String emailToken)async{
+  final repository = await ref.watch(loginPasswordRemoteRepositoryProvider.future);
+  return VerifyUserUseCase(repository).execute(emailToken);
 });
