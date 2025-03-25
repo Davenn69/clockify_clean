@@ -111,7 +111,10 @@ class RegisterScreen extends ConsumerWidget{
                                 }else{
                                   WidgetsBinding.instance.addPostFrameCallback((_) {
                                     Navigator.pop(contextRef);
-                                    showModal(contextRef);
+                                    // print("Data data here ${data['emailToken']}");
+                                    // ref.read(emailTokenProvider.notifier).state = data['emailToken'];
+                                    // showModalForVerifyEmail(contextRef, ref, data['emailToken']);
+                                    showModal(context);
                                     Timer(Duration(seconds: 2), () {
                                       Navigator.pushReplacement(contextRef, NavigationService.createRouteForRegisterToLoginScreen());
                                     });
