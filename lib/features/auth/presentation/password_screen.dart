@@ -1,12 +1,17 @@
+import 'package:clockify_miniproject/core/constants/button_themes.dart';
+import 'package:clockify_miniproject/core/constants/text_theme.dart';
 import 'package:clockify_miniproject/core/utils/password_validation.dart';
 import 'package:clockify_miniproject/features/auth/application/providers/password_view_provider.dart';
-import 'package:clockify_miniproject/features/auth/presentation/widgets/password_widgets.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/constants/colors.dart';
+import '../../../core/router/router_constants.dart';
 import '../../../core/utils/responsive_functions.dart';
+import '../../../core/widgets/error_widgets.dart';
 import '../application/providers/password_providers.dart';
 
 class PasswordScreen extends ConsumerStatefulWidget{
@@ -27,15 +32,17 @@ class PasswordScreenState extends ConsumerState<PasswordScreen>{
     if(_formKey.currentState!.validate()){
       if(result.contains(ConnectivityResult.none)){
         WidgetsBinding.instance.addPostFrameCallback((_){
-          showModalForPasswordError(context, "Unable to connect to the internet");
+          ShowDialog.showErrorDialog(message: "Unable to connect to the internet");
         });
         return;
       }
       WidgetsBinding.instance.addPostFrameCallback((_){
-        Navigator.of(context).pushNamed("/loading_content", arguments: {
-          'email' : widget.email,
-          'password' : _passwordController.text
-        });
+        // Navigator.of(context).pushNamed("/loading_content", arguments: {
+        //   'email' : widget.email,
+        //   'password' : _passwordController.text
+        // });
+
+        context.pushNamed(routes.loadingToContent, extra: {'email' : widget.email, 'password' : _passwordController.text});
       });
     }
   }
@@ -60,16 +67,13 @@ class PasswordScreenState extends ConsumerState<PasswordScreen>{
                       child: FittedBox(
                         child: Text(
                           "Password",
-                          style: GoogleFonts.nunitoSans(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold
-                          ),
+                          style: textTheme.headline2,
                         ),
                       ),
                     ),
                     settingSizeForScreenSpaces(context, 0.03, 0.01),
                     SizedBox(
-                      width: 300,
+                      width: 300.w,
                       child: Form(
                         key: _formKey,
                         child: TextFormField(
@@ -82,15 +86,13 @@ class PasswordScreenState extends ConsumerState<PasswordScreen>{
                           obscureText: !isVisible,
                           decoration: InputDecoration(
                               labelText: "Input your password",
-                              labelStyle: GoogleFonts.nunitoSans(
-                                  fontSize: 20
-                              ),
+                              labelStyle: textTheme.labelText2,
                               floatingLabelBehavior: FloatingLabelBehavior.auto,
                               enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Color(0xFF233971).withAlpha(128), width: 2)
+                                  borderSide: BorderSide(color: colors.primary.withAlpha(128), width: 2)
                               ),
                               focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Color(0xFF233971), width:2)
+                                  borderSide: BorderSide(color: colors.primary, width:2)
                               ),
                               suffixIcon: GestureDetector(
                                   onTap: (){
@@ -115,28 +117,22 @@ class PasswordScreenState extends ConsumerState<PasswordScreen>{
                           )],
                           gradient: LinearGradient(
                               colors: [
-                                Color(0xFF45CDDC),
-                                Color(0xFF2EBED9),
+                                colors.lightBlue,
+                                colors.darkBlue,
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter
                           )
                       ),
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent
-                        ),
+                        style: buttonThemes.transparentButton,
                         onPressed: (){
                           _handleLoginPassword();
                         },
                         child: FittedBox(
                           child: Text(
                             "OK",
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: settingSizeForText(context, 20, 14),
-                                color: Colors.white
-                            ),
+                            style: textTheme.buttonText1,
                           ),
                         ),
                       ),
@@ -146,29 +142,29 @@ class PasswordScreenState extends ConsumerState<PasswordScreen>{
                       onTap: ()async{
                         final response = await ref.read(sendPasswordLinkProvider(widget.email).future);
                         if(response?['error'] == "Unknown error occurred"){
-
-                          showModalForPasswordError(context, "Unknown error occurred");
+                          ShowDialog.showErrorDialog(message: "Unknown error occurred");
                           return;
                         }
                         if(response?['status'] == 'fail'){
                           WidgetsBinding.instance.addPostFrameCallback((_){
-                            showModalForPasswordError(context, response?['errors']['message']);
+                            ShowDialog.showErrorDialog(message: response?['errors']['message']);
                           });
                         }else{
                           WidgetsBinding.instance.addPostFrameCallback((_){
-                            showModalForForgotPassword(context);
+                            ShowDialog.showModalForForgotPassword();
                           });
                         }
                       },
                       child: FittedBox(
                         child: Text(
                           "Forgot password?",
-                          style: GoogleFonts.nunitoSans(
-                              fontSize: settingSizeForText(context, 20, 14),
-                              decoration: TextDecoration.underline,
-                              decorationColor: Colors.black87.withAlpha(100),
-                              color: Colors.black87.withAlpha(100)
-                          ),
+                          style: textTheme.link1
+                          // GoogleFonts.nunitoSans(
+                          //     fontSize: settingSizeForText(context, 20, 14),
+                          //     decoration: TextDecoration.underline,
+                          //     decorationColor: Colors.black87.withAlpha(100),
+                          //     color: Colors.black87.withAlpha(100)
+                          // ),
                         ),
                       ),
                     )

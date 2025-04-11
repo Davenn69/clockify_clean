@@ -1,8 +1,13 @@
+import 'package:clockify_miniproject/core/constants/text_theme.dart';
 import 'package:clockify_miniproject/features/activity/domain/entities/debouncer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/constants/colors.dart';
+import '../../../../core/constants/image_paths.dart';
 import '../../../../core/navigation/navigation_service.dart';
 import '../../../../core/utils/responsive_functions.dart';
 import '../../application/providers/history_providers.dart';
@@ -25,7 +30,7 @@ class ActivityScreen extends ConsumerWidget{
     final lng = ref.watch(timeLocationProvider).lng;
 
     return Scaffold(
-      backgroundColor: Color(0xFF233971),
+      backgroundColor: colors.primary,
       body: SafeArea(
           child: SingleChildScrollView(
             child: Center(
@@ -36,7 +41,7 @@ class ActivityScreen extends ConsumerWidget{
                   Hero(
                     tag: 'logo',
                     child: Image.asset(
-                        "assets/images/clockify-medium.png",
+                        images.clockifyLogo,
                         width: settingSizeForScreen(context, 200, 150),
                         fit: BoxFit.cover
                     ),
@@ -52,11 +57,7 @@ class ActivityScreen extends ConsumerWidget{
                           tag: 'Timer',
                           child: Text(
                             "Timer",
-                            style: GoogleFonts.nunitoSans(
-                                color: Colors.grey.shade500,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18
-                            ),
+                            style: textTheme.navigationTextInactive,
                           ),
                         ),
                       ),
@@ -69,21 +70,17 @@ class ActivityScreen extends ConsumerWidget{
                               tag: 'Activity',
                               child: Text(
                                 "Activity",
-                                style: GoogleFonts.nunitoSans(
-                                    color: Color(0xFFF8D068),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: settingSizeForText(context, 20, 18)
-                                ),
+                                style: textTheme.navigationTextActive,
                               ),
                             ),
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Hero(
                             tag: "timer-activity",
                             child: AnimatedContainer(
                               width:  orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.20 : MediaQuery.of(context).size.height * 0.30,
                               height: 3,
-                              color : Color(0xFFF8D068),
+                              color : colors.secondary,
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
                             ),
@@ -92,7 +89,7 @@ class ActivityScreen extends ConsumerWidget{
                       ),
                     ],
                   ),
-                  SizedBox(height: 30),
+                  Gap(30.h),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 13),
                     child: Row(
@@ -112,10 +109,7 @@ class ActivityScreen extends ConsumerWidget{
                               },
                               decoration: InputDecoration(
                                   hintText: "Search Activity...",
-                                  hintStyle: GoogleFonts.nunitoSans(
-                                    fontSize: 14,
-                                    color: Colors.grey
-                                  ),
+                                  hintStyle: textTheme.inputHintText,
                                   filled: true,
                                   fillColor: Colors.white,
                                   suffixIcon: Icon(
@@ -128,7 +122,7 @@ class ActivityScreen extends ConsumerWidget{
                               ),
                             )
                         ),
-                        SizedBox(width: 10),
+                        Gap(10.h),
                         Expanded(
                           flex: 2,
                           child: DropdownButtonFormField<String>(
@@ -143,9 +137,7 @@ class ActivityScreen extends ConsumerWidget{
                                 value: value,
                                 child: Text(
                                   value,
-                                  style: GoogleFonts.nunitoSans(
-                                      color: Colors.black87
-                                  ),
+                                  style: textTheme.dropDownText,
                                 ),
                               );
                             }).toList(),
@@ -167,10 +159,10 @@ class ActivityScreen extends ConsumerWidget{
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  Gap(20.h),
                   (lat == null || lng == null) ? CircularProgressIndicator() : Consumer(builder: (context, ref, child){
                     final historyState = ref.watch(historyHiveStateNotifierProvider).history;
-                    return Column(children: makeWidget(context, ref, historyState));
+                    return Column(children: makeWidget(ref, historyState));
                   })
                 ],
               ),

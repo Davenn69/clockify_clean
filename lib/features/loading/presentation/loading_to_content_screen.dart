@@ -1,10 +1,17 @@
+import 'package:clockify_miniproject/core/widgets/error_widgets.dart';
 import 'package:clockify_miniproject/features/auth/application/providers/password_view_provider.dart';
-import 'package:clockify_miniproject/features/loading/presentation/widgets/loading_to_content_screen_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/constants/colors.dart';
+import '../../../core/router/router_constants.dart';
+import '../../activity/application/providers/activity_repository_provider.dart';
 
 class LoadingContentScreen extends ConsumerStatefulWidget{
-  const LoadingContentScreen({super.key});
+  final Map<String, String> credentials;
+
+  const LoadingContentScreen({super.key, required this.credentials});
 
   @override
   ConsumerState<LoadingContentScreen> createState() => LoadingContentScreenState();
@@ -38,19 +45,21 @@ class LoadingContentScreenState extends ConsumerState<LoadingContentScreen> with
   @override
   void initState() {
     super.initState();
+    email = widget.credentials['email'];
+    password = widget.credentials['password'];
     contentReady();
   }
 
-  @override
-  void didChangeDependencies(){
-    super.didChangeDependencies();
-
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-
-    email = args['email'];
-    password = args['password'];
-
-  }
+  // @override
+  // void didChangeDependencies(){
+  //   super.didChangeDependencies();
+  //
+  //   final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+  //
+  //   email = args['email'];
+  //   password = args['password'];
+  //
+  // }
 
   @override
   Widget build(BuildContext context){
@@ -63,22 +72,26 @@ class LoadingContentScreenState extends ConsumerState<LoadingContentScreen> with
           data : (data){
             if(data['error']=="Unknown error occurred"){
               WidgetsBinding.instance.addPostFrameCallback((_){
-                showModalLoadingForError(context, data['error']);
+                ShowDialog.showErrorDialog(message: data['error']);
               });
+              context.pushReplacementNamed(routes.password, extra: email);
             }else if(data['status']=='fail'){
               WidgetsBinding.instance.addPostFrameCallback((_){
-                showModalLoadingForError(context, data['errors']['message']);
+                ShowDialog.showErrorDialog(message: data['errors']['message']);
               });
+              context.pushReplacementNamed(routes.password, extra: email);
             }else{
               saveSessionNotifier.saveSession(data['token']);
-              Navigator.pushReplacementNamed(context, "/content", arguments: {
-                'token' : data['token']
-              });
+              ref.read(tokenProvider.notifier).state = data['token'];
+              context.pushNamed(routes.timer);
+              // Navigator.pushReplacementNamed(context, "/content", arguments: {
+              //   'token' : data['token']
+              // });
             }
 
           },
           error: (error, stackTrace){
-            Navigator.pushReplacementNamed(context, '/password');
+            context.pushReplacementNamed(routes.password);
           },
           loading: (){},
         );
@@ -102,7 +115,7 @@ class LoadingContentScreenState extends ConsumerState<LoadingContentScreen> with
                           height: 20,
                           margin: EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
-                            color: Color(0xFF233971),
+                            color: colors.primary,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),

@@ -1,14 +1,17 @@
+import 'package:clockify_miniproject/core/constants/text_theme.dart';
 import 'package:clockify_miniproject/core/utils/responsive_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:gap/gap.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
+import '../../../../core/constants/colors.dart';
+import '../../../../core/constants/image_paths.dart';
 import '../../../../core/navigation/navigation_service.dart';
 import '../../../../core/utils/date_formatting.dart';
-import '../../application/providers/activity_repository_provider.dart';
 import '../../application/providers/button_provider.dart';
 import '../../application/providers/timer_providers.dart';
 import '../../domain/entities/activity_entity.dart';
@@ -31,22 +34,15 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
     final stopWatchTime = ref.watch(stopWatchTimeProvider);
     final state = ref.watch(timeLocationProvider);
     final notifier = ref.read(timeLocationProvider.notifier);
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
-    if (args != null && args.containsKey('token')) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(tokenProvider.notifier).state = args['token'];
-      });
-    }
 
     if(state.lat == null && state.lng == null){
       WidgetsBinding.instance.addPostFrameCallback((_){
-        notifier.updateGeolocation(context);
+        notifier.updateGeolocation();
       });
     }
 
     return Scaffold(
-      backgroundColor: Color(0xFF233971),
+      backgroundColor: colors.primary,
       body: SafeArea(
           child: SingleChildScrollView(
             child: Center(
@@ -57,7 +53,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                   Hero(
                     tag: 'logo',
                     child: Image.asset(
-                        "assets/images/clockify-medium.png",
+                        images.clockifyLogo,
                         width: settingSizeForScreen(context, 200, 150),
                         fit: BoxFit.cover
                     ),
@@ -77,21 +73,17 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                               tag: 'Timer',
                               child: Text(
                                 "Timer",
-                                style: GoogleFonts.nunitoSans(
-                                    color: Color(0xFFF8D068),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: settingSizeForText(context, 20, 18)
-                                ),
+                                style: textTheme.navigationTextActive,
                               ),
                             ),
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Hero(
                             tag: "timer-activity",
                             child: AnimatedContainer(
                               width: orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.20 : MediaQuery.of(context).size.height * 0.30,
                               height: 3,
-                              color : Color(0xFFF8D068),
+                              color : colors.secondary,
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
                             ),
@@ -106,11 +98,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                           tag: 'Activity',
                           child: Text(
                             "Activity",
-                            style: GoogleFonts.nunitoSans(
-                                color: Colors.grey.shade500,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18
-                            ),
+                            style: textTheme.navigationTextInactive,
                           ),
                         ),
                       ),
@@ -119,11 +107,7 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                   settingSizeForScreenSpaces(context, 0.1, 0.1),
                   Text(
                     stopWatchTime.when(data: (value)=> StopWatchTimer.getDisplayTime(value, milliSecond: false).replaceAll(":", " : "), loading: () => "00 : 00 : 00", error: (err, stack) => "Error"),
-                    style: GoogleFonts.nunitoSans(
-                        fontSize: 38,
-                        fontWeight: FontWeight.bold,
-                        color : Colors.white
-                    ),
+                    style: textTheme.timeDisplay,
                   ),
                   settingSizeForScreenSpaces(context, 0.1, 0.1),
                   Row(
@@ -133,28 +117,17 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                         children: <Widget>[
                           Text(
                             "Start Time",
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: 12,
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeDateHeadlineText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatTime(state.startTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatDate(state.startTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                                color: Colors.white
-                            ),
+                            style: textTheme.dateText,
                           ),
                         ],
                       ),
@@ -162,37 +135,26 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                         children: <Widget>[
                           Text(
                             "End Time",
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: 12,
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeDateHeadlineText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatTime(state.endTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatDate(state.endTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                                color: Colors.white
-                            ),
+                            style: textTheme.dateText,
                           ),
                         ],
                       )
                     ],
                   ),
-                  SizedBox(height: 20),
+                  Gap(20.h),
                   SizedBox(
-                    width: 275,
-                    height: 60,
+                    width: 275.w,
+                    height: 60.h,
                     child: Container(
                       decoration: BoxDecoration(
                           color: Colors.white.withAlpha(50),
@@ -207,33 +169,27 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                           Icon(
                               Icons.location_on_outlined,
                               size: 30,
-                              color:  Color(0xFFF8D068)
+                              color:  colors.secondary
                           ),
                           Text(
                             "${state.lat} ${state.lng}",
-                            style: GoogleFonts.nunitoSans(
-                                color: Colors.white,
-                                fontSize: 14
-                            ),
+                            style: textTheme.locationText,
                           )
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  Gap(20.h),
                   SizedBox(
-                    width: 400,
-                    height: 100,
+                    width: 400.w,
+                    height: 100.h,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: TextFormField(
                         controller: _descriptionController,
                         keyboardType: TextInputType.text,
                         maxLines: 5,
-                        style: GoogleFonts.nunitoSans(
-                            fontSize: 16,
-                            color: Colors.black
-                        ),
+                        style: textTheme.activityDescriptionText,
                         inputFormatters: [
                           FilteringTextInputFormatter.deny(RegExp(r'^\s+')),
                         ],
@@ -250,8 +206,8 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
-                  condition ? StartState(ref, isStart, startTimer, notifier) : NotStartState(ref, isResetStop, isStart, stopTimer, resetTimer, notifier, _descriptionController, ActivityEntity(
+                  Gap(20.h),
+                  condition ? StartButtonWidget(ref : ref, provider : isStart, startTimer : startTimer, notifier : notifier) : ActivityDisabledWidgets(ref : ref, isResetStop: isResetStop, isStart: isStart, stopTimer: stopTimer, resetTimer: resetTimer, notifier: notifier, controller: _descriptionController, activity: ActivityEntity(
                     description: _descriptionController.text,
                     startTime:  state.startTime ?? DateTime.now(),
                     endTime: state.endTime ?? DateTime.now(),
@@ -260,8 +216,8 @@ class ContentScreenState extends ConsumerState<ContentScreen>{
                     createdAt: DateTime.now(),
                     updatedAt: DateTime.now(),
                     userUuid: "",
-                  ),context),
-                  SizedBox(height: 40)
+                  )),
+                  Gap(40.h)
                 ],
               ),
             ),

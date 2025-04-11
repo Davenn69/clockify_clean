@@ -1,11 +1,13 @@
 import 'package:intl/intl.dart';
 
 String formatTime(DateTime? time) {
-  return time != null ? DateFormat('hh:mm:ss').format(time) : "-";
+  if(time == null) return "-";
+  return DateFormat('hh:mm:ss').format(time);
 }
 
 String formatDate(DateTime? time){
-  return time != null ? DateFormat("dd MMM yyyy").format(time) : "-";
+  if(time == null)return "-";
+  return DateFormat("dd MMM yyyy").format(time);
 }
 
 String formatDuration(Duration duration){

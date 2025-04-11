@@ -2,9 +2,11 @@ import 'package:clockify_miniproject/features/activity/application/providers/del
 import 'package:clockify_miniproject/features/activity/application/providers/update_activity_provider.dart';
 import 'package:clockify_miniproject/features/activity/domain/usecases/delete_activity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/router/router.dart';
 import 'features/activity/application/providers/get_activities_provider.dart';
 import 'features/activity/application/providers/save_activities_provider.dart';
 import 'features/activity/data/models/activity_hive_model.dart';
@@ -39,6 +41,8 @@ final updateActivitySyncProvider = Provider<UpdateActivity>((ref) {
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
+  setupRouter(initialRoute: '/');
+
   final appDir = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(appDir.path);
   Hive.registerAdapter(ActivityHiveAdapter());
@@ -58,6 +62,7 @@ void main() async{
   final updateActivity = await container.read(updateActivityProvider.future);
   container.dispose();
 
+
   runApp(ProviderScope(
     overrides: [
       getActivitiesSyncProvider.overrideWithValue(getActivities),
@@ -65,20 +70,56 @@ void main() async{
       deleteActivitySyncProvider.overrideWithValue(deleteActivity),
       updateActivitySyncProvider.overrideWithValue(updateActivity)
     ],
-    child: MaterialApp(
-      initialRoute: "/",
-      routes: {
-        '/' : (context) => LoadingScreen(),
-        '/login' : (context) => LoginScreen(),
-        '/password' : (context) => PasswordScreen(email: '',),
-        '/register' : (context) => RegisterScreen(),
-        '/loading_content' : (context) => LoadingContentScreen(),
-        '/content' : (context) => ContentScreen(),
-        '/activity' : (context) => ActivityScreen(),
-        '/detail' : (context) => DetailScreen(activity: ActivityHive(uuid: '', description: '', startTime: DateTime.now(), endTime: DateTime.now()
-            , locationLat: 0, locationLng: 0, createdAt: DateTime.now(), updatedAt: DateTime.now(), userUuid: ""),),
-        // '/verify-email' : (context) => MyApp(),
-      },
-    ),
+    child: MyApp(),
+    // child: MaterialApp(
+    //   initialRoute: "/",
+    //   routes: {
+    //     '/' : (context) => LoadingScreen(),
+    //     '/login' : (context) => LoginScreen(),
+    //     '/password' : (context) => PasswordScreen(email: '',),
+    //     '/register' : (context) => RegisterScreen(),
+    //     '/loading_content' : (context) => LoadingContentScreen(),
+    //     '/content' : (context) => ContentScreen(),
+    //     '/activity' : (context) => ActivityScreen(),
+    //     '/detail' : (context) => DetailScreen(activity: ActivityHive(uuid: '', description: '', startTime: DateTime.now(), endTime: DateTime.now()
+    //         , locationLat: 0, locationLng: 0, createdAt: DateTime.now(), updatedAt: DateTime.now(), userUuid: ""),),
+    //     // '/verify-email' : (context) => MyApp(),
+    //   },
+    // ),
   ));
+}
+
+class MyApp extends StatelessWidget{
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    //   ScreenUtil.init(
+    //     context,
+    //     designSize: const Size(375, 812),
+    //     minTextAdapt: true
+    //   );
+    //   return MaterialApp.router(
+    //     routerDelegate: router.routerDelegate,
+    //     routeInformationParser: router.routeInformationParser,
+    //     routeInformationProvider: router.routeInformationProvider,
+    //     debugShowCheckedModeBanner: false,
+    //     title: 'My App',
+    //   );
+    // }
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      builder: (context, child) {
+        return MaterialApp.router(
+          routerDelegate: router.routerDelegate,
+          routeInformationParser: router.routeInformationParser,
+          routeInformationProvider: router.routeInformationProvider,
+          debugShowCheckedModeBanner: false,
+          title: 'My App',
+          // Make sure to pass the `child` to support hot reload correctly
+        );
+      },
+    );
+  }
 }

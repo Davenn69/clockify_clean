@@ -1,25 +1,41 @@
 import 'dart:async';
+import 'package:clockify_miniproject/core/constants/button_themes.dart';
 import 'package:clockify_miniproject/core/navigation/navigation_service.dart';
 import 'package:clockify_miniproject/features/auth/application/providers/password_view_provider.dart';
 import 'package:clockify_miniproject/features/auth/presentation/widgets/register_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 
+import '../../../core/constants/colors.dart';
+import '../../../core/constants/text_theme.dart';
 import '../../../core/utils/responsive_functions.dart';
-import '../application/providers/register_providers.dart';
+import '../../../core/widgets/error_widgets.dart';
 
+class RegisterScreen extends ConsumerStatefulWidget{
+  const RegisterScreen({super.key});
 
-class RegisterScreen extends ConsumerWidget{
+  @override
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+}
+class _RegisterScreenState extends ConsumerState<RegisterScreen>{
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
-  RegisterScreen({super.key});
+  @override
+  void dispose(){
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref){
+  Widget build(BuildContext context){
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -41,19 +57,16 @@ class RegisterScreen extends ConsumerWidget{
                         child: FittedBox(
                           child: Text(
                             "Create New Account",
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold
-                            ),
+                            style: textTheme.headline2,
                           ),
                         ),
                       ),
                       settingSizeForScreenSpaces(context, 0.03, 0.01),
-                      inputTextForEmail(context, _emailController, "Input your email", formKey),
+                      EmailInputField(controller: _emailController,  labelText1: "Email", formKey: formKey,),
                       settingSizeForScreenSpaces(context, 0.04, 0.03),
-                      inputTextForPassword(context, ref, _passwordController, "Create your password", isPasswordVisible, formKey),
+                      PasswordInputField(controller: _passwordController, labelText1: "Enter your Password", formKey: formKey),
                       settingSizeForScreenSpaces(context, 0.04, 0.03),
-                      inputTextForConfirmPassword(context, ref, _confirmPasswordController, "Confirm your password", isConfirmPasswordVisible, _passwordController),
+                      ConfirmPasswordInputField(controller: _confirmPasswordController, labelText1: "Confirm your Password", formKey: formKey, passwordInput: _passwordController),
                       settingSizeForScreenSpaces(context, 0.35, 0.05),
                       Container(
                         width: settingSizeForScreen(context, 400, 100),
@@ -67,18 +80,15 @@ class RegisterScreen extends ConsumerWidget{
                             )],
                             gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFF45CDDC),
-                                  Color(0xFF2EBED9),
+                                  colors.lightBlue,
+                                  colors.darkBlue,
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter
                             )
                         ),
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent
-                          ),
+                          style: buttonThemes.transparentButton,
                           onPressed: (){
                             if (formKey.currentState!.validate()) {
                               final contextRef = context;
@@ -93,19 +103,19 @@ class RegisterScreen extends ConsumerWidget{
                                 if(data['error'] == "Unknown error occurred"){
                                   WidgetsBinding.instance.addPostFrameCallback((_){
                                     Navigator.pop(contextRef);
-                                    showModalForRegisterError(context, "Unknown error occurred");
+                                    ShowDialog.showErrorDialog(message: "Unknown error occurred");
                                     return;
                                   });
                                 }else if(data['status']=='fail'){
                                   if(data['errors']['email'] != null){
                                     WidgetsBinding.instance.addPostFrameCallback((_){
                                       Navigator.pop(contextRef);
-                                      showModalForRegisterError(context, "Email already exists");
+                                      ShowDialog.showErrorDialog(message: "Email already exists");
                                     });
                                   }else if(data['errors']['password']!=null){
                                     WidgetsBinding.instance.addPostFrameCallback((_){
                                       Navigator.pop(contextRef);
-                                      showModalForRegisterError(context, 'Password has to be strong!');
+                                      ShowDialog.showErrorDialog(message: 'Password has to be strong!');
                                     });
                                   }
                                 }else{
@@ -114,7 +124,7 @@ class RegisterScreen extends ConsumerWidget{
                                     // print("Data data here ${data['emailToken']}");
                                     // ref.read(emailTokenProvider.notifier).state = data['emailToken'];
                                     // showModalForVerifyEmail(contextRef, ref, data['emailToken']);
-                                    showModal(context);
+                                    ShowDialog.showSuccessModal();
                                     Timer(Duration(seconds: 2), () {
                                       Navigator.pushReplacement(contextRef, NavigationService.createRouteForRegisterToLoginScreen());
                                     });
@@ -144,14 +154,11 @@ class RegisterScreen extends ConsumerWidget{
                           },
                           child: Text(
                             "OK",
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: settingSizeForText(context, 20, 16),
-                                color: Colors.white
-                            ),
+                            style: textTheme.buttonText1,
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      Gap(20.h),
                     ],
                   ),
                 ),

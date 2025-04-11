@@ -1,12 +1,15 @@
 import 'package:clockify_miniproject/core/utils/responsive_functions.dart';
+import 'package:clockify_miniproject/core/widgets/error_widgets.dart';
 import 'package:clockify_miniproject/features/detail/application/providers/detail_providers.dart';
-import 'package:clockify_miniproject/features/detail/presentation/widgets/detail_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 
+import '../../../../core/constants/colors.dart';
+import '../../../../core/constants/text_theme.dart';
 import '../../../../core/utils/date_formatting.dart';
 import '../../../activity/data/models/activity_hive_model.dart';
 import '../widgets/button_widget.dart';
@@ -27,15 +30,20 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
 
     Future.microtask((){
       descriptionController.text = widget.activity.description;
-      ref.read(changedStartTimeProvider.notifier).state = widget.activity.startTime;
-      ref.read(changedEndTimeProvider.notifier).state = widget.activity.endTime;
+      ref.read(detailProvider.notifier).changeBothTime(widget.activity.startTime, widget.activity.endTime);
     });
   }
 
   @override
+  void dispose(){
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context){
-    var changedStartTime = ref.watch(changedStartTimeProvider);
-    var changedEndTime = ref.watch(changedEndTimeProvider);
+    var changedStartTime = ref.watch(detailProvider).changedStartTime;
+    var changedEndTime = ref.watch(detailProvider).changedEndTime;
 
     Future<void> selectDateStartTime(BuildContext context, DateTime startTime, DateTime endTime) async {
       DatePicker.showDatePicker(
@@ -59,12 +67,12 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
 
                 if(selectedDateTime.isAfter(endTime)){
                   WidgetsBinding.instance.addPostFrameCallback((_){
-                    showModalForDetailError(context, "Start time should not be greater than end time");
+                    ShowDialog.showErrorDialog(message: "Start time should not be greater than end time");
                   });
                   return;
                 }
 
-                ref.read(changedStartTimeProvider.notifier).state = selectedDateTime;
+                ref.read(detailProvider.notifier).changeStartTime(selectedDateTime);
               },
             );
           });
@@ -92,12 +100,12 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
 
                 if(selectedDateTime.isBefore(startTime)){
                   WidgetsBinding.instance.addPostFrameCallback((_){
-                    showModalForDetailError(context, "End time should not be greater than start time");
+                    ShowDialog.showErrorDialog(message: "End time should not be greater than start time");
                   });
                   return;
                 }
 
-                ref.read(changedEndTimeProvider.notifier).state = selectedDateTime;
+                ref.read(detailProvider.notifier).changeEndTime(selectedDateTime);
               },
             );
           });
@@ -105,18 +113,14 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF233971),
+        backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           "Detail",
-          style: GoogleFonts.nunitoSans(
-              fontSize: 18,
-              color: Colors.white,
-              fontWeight: FontWeight.bold
-          ),
+          style: textTheme.headline1,
         ),
       ),
-      backgroundColor: Color(0xFF233971),
+      backgroundColor: colors.primary,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -129,22 +133,14 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                   children: <Widget>[
                     Text(
                       formatDate(DateTime.now()),
-                      style: GoogleFonts.nunitoSans(
-                          color: Color(0xFFF8D068),
-                          fontWeight: FontWeight.bold,
-                          fontSize: settingSizeForText(context, 18, 14)
-                      ),
+                      style: textTheme.dateDisplayText,
                     ),
                   ],
                 ),
                 settingSizeForScreenSpaces(context, 0.1, 0.05),
                 Text(
                   formatDuration(changedEndTime.difference(changedStartTime)),
-                  style: GoogleFonts.nunitoSans(
-                      fontSize: settingSizeForText(context, 38, 28),
-                      fontWeight: FontWeight.bold,
-                      color : Colors.white
-                  ),
+                  style: textTheme.durationDetailText,
                 ),
                 settingSizeForScreenSpaces(context, 0.08, 0.05),
                 Row(
@@ -158,28 +154,17 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                         children: <Widget>[
                           Text(
                             "Start Time",
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: settingSizeForText(context, 12, 10),
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeDateHeadlineText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatTime(changedStartTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: settingSizeForText(context, 16, 12),
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatDate(changedStartTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: settingSizeForText(context, 12, 10),
-                                color: Colors.white
-                            ),
+                            style: textTheme.dateText,
                           ),
                         ],
                       ),
@@ -192,35 +177,24 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                         children: <Widget>[
                           Text(
                             "End Time",
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: settingSizeForText(context, 12, 10),
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeDateHeadlineText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatTime(changedEndTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: settingSizeForText(context, 14, 12),
-                                color: Colors.white
-                            ),
+                            style: textTheme.timeText,
                           ),
-                          SizedBox(height: 5),
+                          Gap(5.h),
                           Text(
                             formatDate(changedEndTime),
-                            style: GoogleFonts.nunitoSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: settingSizeForText(context, 12, 10),
-                                color: Colors.white
-                            ),
+                            style: textTheme.dateText,
                           ),
                         ],
                       ),
                     )
                   ],
                 ),
-                SizedBox(height: 20),
+                Gap(20.h),
                 SizedBox(
                   width: settingSizeForScreen(context, 275, 200),
                   height: settingSizeForScreen(context, 60, 40),
@@ -238,14 +212,11 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                             Icon(
                               Icons.location_on_outlined,
                               size: 30,
-                              color: Color(0xFFF8D068),
+                              color: colors.secondary,
                             ),
                             Text(
                               "${widget.activity.locationLat} ${widget.activity.locationLng}",
-                              style: GoogleFonts.nunitoSans(
-                                  color: Colors.white,
-                                  fontSize: 16
-                              ),
+                              style: textTheme.locationText,
                             )
                           ],
                         ),
@@ -253,7 +224,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                Gap(20.h),
                 SizedBox(
                   width: settingSizeForScreen(context, 400, 300),
                   height: settingSizeForScreen(context, 150, 100),
@@ -263,10 +234,7 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                       controller: descriptionController,
                       keyboardType: TextInputType.text,
                       maxLines: 5,
-                      style: GoogleFonts.nunitoSans(
-                          fontSize: settingSizeForText(context, 16, 12),
-                          color: Colors.black
-                      ),
+                      style: textTheme.activityDescriptionText,
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp(r'^\s+')),
                       ],
@@ -283,9 +251,9 @@ class DetailScreenState extends ConsumerState<DetailScreen>{
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
-                saveDeleteState(ref, descriptionController, widget.activity, context),
-                SizedBox(height: 40)
+                Gap(20.h),
+                SavingButtonWidgetDetails(ref : ref, controller:  descriptionController, activity: widget.activity),
+                Gap(40.h)
               ],
             ),
           ),

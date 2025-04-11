@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'package:clockify_miniproject/core/constants/colors.dart';
 import 'package:clockify_miniproject/features/loading/application/providers/loading_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/constants/image_paths.dart';
 import '../../../core/navigation/navigation_service.dart';
+import '../../../core/router/router_constants.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({super.key});
@@ -39,26 +44,27 @@ class LoadingScreenState extends ConsumerState<LoadingScreen>{
     ref.listen(loadingNotifierProvider, (previous, next) {
       if (next is AsyncData<Map<String,String>?>) {
         if (mounted) {
-          Navigator.of(context).pushReplacement(
-            next.value == null ?
-            NavigationService.createRouteForLoginScreen()
-                : NavigationService.createRouteForTimerScreen(),
-          );
+          // Navigator.of(context).pushReplacement(
+          //   next.value == null ?
+          //   NavigationService.createRouteForLoginScreen()
+          //        : NavigationService.createRouteForTimerScreen(),
+          // );
+          context.goNamed(routes.login);
         }
       }
     });
 
     return Scaffold(
-        backgroundColor: Color(0xFF233971),
+        backgroundColor: colors.primary,
         body:Center(
           child: AnimatedOpacity(
             opacity: opacity,
             duration: Duration(seconds: 1),
             curve: Curves.easeInOut,
             child: Image.asset(
-              width: 300,
-              height: 300,
-              "assets/images/clockify-big.png",
+              width: 200.w,
+              height: 200.h,
+              images.clockifyLogo,
             ),
           ),
         )
